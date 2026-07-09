@@ -1,0 +1,2558 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>CommuteFlow - Elite Corporate Ride Sharing</title>
+    <!-- Tailwind CSS CDN with extended plugins -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <!-- Google Fonts Inter & Material Symbols -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <!-- Leaflet JS Real Maps library -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    
+    <!-- Unified Tailwind Theme Configuration -->
+    <script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+              "surface-container-lowest": "#ffffff",
+              "inverse-primary": "#b6c6f0",
+              "tertiary": "#07182b",
+              "outline-variant": "#c5c6cf",
+              "surface-container": "#eceef0",
+              "error-container": "#ffdad6",
+              "error": "#ba1a1a",
+              "surface-bright": "#f7f9fb",
+              "inverse-on-surface": "#eff1f3",
+              "on-surface": "#191c1e",
+              "primary": "#031636",
+              "surface-variant": "#e0e3e5",
+              "secondary": "#006d37",
+              "primary-fixed-dim": "#b6c6f0",
+              "on-secondary": "#ffffff",
+              "on-tertiary-container": "#8494ac",
+              "surface": "#f7f9fb",
+              "on-surface-variant": "#44474e",
+              "surface-tint": "#4e5e82",
+              "surface-container-high": "#e6e8ea",
+              "outline": "#75777f",
+              "primary-fixed": "#d8e2ff",
+              "secondary-fixed": "#6bfe9c",
+              "on-secondary-fixed-variant": "#005228",
+              "secondary-container": "#6bfe9c",
+              "on-error-container": "#93000a",
+              "on-tertiary-fixed": "#0b1c30",
+              "surface-dim": "#d8dadc",
+              "secondary-fixed-dim": "#4ae183",
+              "on-tertiary-fixed-variant": "#38485d",
+              "primary-container": "#1a2b4c",
+              "on-primary-fixed-variant": "#364669",
+              "tertiary-fixed": "#d3e4fe",
+              "on-tertiary": "#ffffff",
+              "on-error": "#ffffff",
+              "background": "#f7f9fb",
+              "tertiary-fixed-dim": "#b7c8e1",
+              "on-primary-container": "#8293ba",
+              "on-secondary-container": "#00743a",
+              "on-primary": "#ffffff",
+              "on-secondary-fixed": "#00210c",
+              "inverse-surface": "#2d3133",
+              "on-primary-fixed": "#071b3b",
+              "on-background": "#191c1e",
+              "surface-container-highest": "#e0e3e5",
+              "tertiary-container": "#1d2d41",
+              "surface-container-low": "#f2f4f6"
+            },
+            "borderRadius": {
+              "DEFAULT": "0.25rem",
+              "lg": "0.5rem",
+              "xl": "0.75rem",
+              "full": "9999px"
+            },
+            "spacing": {
+              "lg": "24px",
+              "container-margin": "20px",
+              "unit": "4px",
+              "md": "16px",
+              "gutter": "16px",
+              "xs": "4px",
+              "xl": "32px",
+              "sm": "8px"
+            },
+            "fontFamily": {
+              "body-lg": ["Inter"],
+              "headline-lg": ["Inter"],
+              "headline-xl": ["Inter"],
+              "body-md": ["Inter"],
+              "label-sm": ["Inter"],
+              "headline-md": ["Inter"],
+              "headline-lg-mobile": ["Inter"],
+              "label-md": ["Inter"]
+            },
+            "fontSize": {
+              "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+              "headline-lg": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+              "headline-xl": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+              "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+              "label-sm": ["11px", {"lineHeight": "14px", "fontWeight": "500"}],
+              "headline-md": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+              "headline-lg-mobile": ["20px", {"lineHeight": "28px", "fontWeight": "700"}],
+              "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}]
+            }
+          },
+        },
+      }
+    </script>
+    
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            line-height: 1;
+            vertical-align: middle;
+        }
+        .filled-icon {
+            font-variation-settings: 'FILL' 1;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f7f9fb;
+            min-height: max(884px, 100dvh);
+            overflow-x: hidden;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+        }
+        .shimmer {
+            background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.25) 50%, rgba(255,255,255,0) 100%);
+            background-size: 200% 100%;
+            animation: shimmer-effect 2s infinite;
+        }
+        @keyframes shimmer-effect {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+        .pulse-green {
+            animation: pulse-ring 2s infinite;
+        }
+        @keyframes pulse-ring {
+            0% { box-shadow: 0 0 0 0px rgba(74, 225, 131, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(74, 225, 131, 0); }
+            100% { box-shadow: 0 0 0 0px rgba(74, 225, 131, 0); }
+        }
+        .pulse-marker::before {
+            content: '';
+            position: absolute;
+            width: 300%;
+            height: 300%;
+            left: -100%;
+            top: -100%;
+            border-radius: 45px;
+            background-color: #006d37;
+            animation: pulse-marker-ring 1.5s cubic-bezier(0.455, 0.03, 0.515, 0.955) infinite;
+            z-index: -1;
+        }
+        @keyframes pulse-marker-ring {
+            0% { transform: scale(.33); opacity: 0.8; }
+            80%, 100% { opacity: 0; transform: scale(1.5); }
+        }
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        
+        /* SPA Routing Transition styles */
+        .route-view {
+            display: none;
+            width: 100%;
+        }
+        .route-view.active {
+            display: block;
+            animation: slideUpFade 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        @keyframes slideUpFade {
+            from {
+                opacity: 0;
+                transform: translateY(16px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* App Container simulator wrapper for desktop viewports */
+        #app-container {
+            width: 100%;
+            height: 100vh;
+            height: 100dvh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            background-color: #f7f9fb;
+            overflow-y: auto;
+            overflow-x: hidden;
+            box-sizing: border-box;
+            transform: translate3d(0, 0, 0); /* Contain fixed elements */
+        }
+        
+        #app-container::-webkit-scrollbar {
+            display: none;
+        }
+        #app-container {
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        @media (min-width: 481px) {
+            body {
+                background-color: #031636 !important;
+                margin: 0;
+                padding: 0;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                min-height: 100vh;
+                overflow: hidden; /* Hide main desktop scrollbar */
+            }
+            #app-container {
+                width: 430px;
+                height: 900px;
+                border-radius: 40px;
+                border: 12px solid #1c1d21;
+                box-shadow: 0 24px 64px rgba(0, 0, 0, 0.4);
+            }
+            
+            /* Hide desktop navigation sidebars */
+            nav.hidden.md\:flex {
+                display: none !important;
+            }
+            .md\:ml-\[280px\] {
+                margin-left: 0 !important;
+            }
+            .md\:w-\[calc\(100\%-280px\)\] {
+                width: 100% !important;
+            }
+            
+            /* Enforce mobile bottom tab bar navigation */
+            nav.fixed.bottom-0.md\:hidden {
+                display: flex !important;
+                position: absolute !important;
+                left: 0 !important;
+                bottom: 0 !important;
+                width: 100% !important;
+            }
+            
+            /* Force sticky headers relative to the mockup container */
+            header.sticky {
+                position: sticky !important;
+                top: 0 !important;
+            }
+            
+            /* Adjust Live Tracking ETA overlay bottom margin for mobile view */
+            .md\:top-4.md\:right-4 {
+                top: auto !important;
+                right: 20px !important;
+                bottom: 88px !important;
+                left: 20px !important;
+            }
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface antialiased">
+    <div id="app-container">
+
+    <!-- ==============================================
+         1. ONBOARDING & VERIFICATION VIEW (#onboarding)
+         ============================================== -->
+    <div id="screen-onboarding" class="route-view active">
+        <!-- Top App Bar -->
+        <header class="w-full sticky top-0 z-50 bg-primary shadow-[0px_4px_12px_rgba(26,43,76,0.08)] flex justify-between items-center px-container-margin py-md">
+            <div class="flex items-center gap-sm">
+                <span class="font-headline-md text-headline-md font-bold text-inverse-primary">CommuteFlow</span>
+            </div>
+            <div class="flex items-center gap-md">
+                <span class="material-symbols-outlined text-inverse-primary">verified</span>
+                <div class="w-8 h-8 rounded-full bg-surface-container-highest overflow-hidden">
+                    <img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDhHrAeMSe9rYWZPl2_8Tj2i9Uc-IThUZbxKFJDbECGi7YbTA6oG46PceEjtylrgS7dZ-mK1LRu2zeW9xZ6p2_CkDvPGXnn6MMkSZquY3ovc-6LCK7xMrhD0pb3FKVdrmyRHWzWEL0ZVWzHawfGpiu2AMB9DzBkjWFPimbOihb1yZYooXyPnsSzRHKNkHQUlmJrIpz7PyABiRJgTHLeYf9GzZS3aO8PBvFYcQtbyXAtp_Ey4ByCiWGovxfEU7zY7boW82GOe8FQ4l0"/>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="w-full max-w-[1200px] mx-auto flex flex-col items-center justify-center px-container-margin py-lg gap-xl min-h-[80vh]">
+            <!-- Verification Card -->
+            <section class="w-full max-w-md">
+                <div class="bg-surface-container-lowest p-lg rounded-xl shadow-[0px_12px_24px_rgba(26,43,76,0.12)] border border-outline-variant flex flex-col gap-lg">
+                    <div class="flex flex-col gap-xs">
+                        <h2 class="font-headline-lg text-headline-lg text-primary">Login to CommuteFlow</h2>
+                        <p class="font-body-md text-body-md text-on-surface-variant">Select your role to enter the secure corporate network.</p>
+                    </div>
+                    <!-- Role Selection -->
+                    <div class="flex flex-col gap-md mt-sm">
+                        <button class="w-full h-16 bg-primary text-on-primary font-headline-md rounded-xl hover:bg-tertiary transition-all active:scale-[0.98] flex items-center justify-between px-lg shadow-md" onclick="loginAs('driver')">
+                            <div class="flex items-center gap-md">
+                                <span class="material-symbols-outlined text-[28px] fill-1" style="font-variation-settings: 'FILL' 1;">directions_car</span>
+                                <span>Login as Driver</span>
+                            </div>
+                            <span class="material-symbols-outlined">arrow_forward</span>
+                        </button>
+                        <button class="w-full h-16 bg-secondary text-on-secondary font-headline-md rounded-xl hover:opacity-90 transition-all active:scale-[0.98] flex items-center justify-between px-lg shadow-md" onclick="loginAs('rider')">
+                            <div class="flex items-center gap-md">
+                                <span class="material-symbols-outlined text-[28px] fill-1" style="font-variation-settings: 'FILL' 1;">person</span>
+                                <span>Login as Rider</span>
+                            </div>
+                            <span class="material-symbols-outlined">arrow_forward</span>
+                        </button>
+                    </div>
+                    <!-- Trust Badges -->
+                    <div class="flex justify-between items-center pt-md border-t border-outline-variant">
+                        <div class="px-3 py-1 rounded-full bg-secondary/10 flex items-center gap-xs">
+                            <span class="material-symbols-outlined text-[16px] text-secondary fill-1" style="font-variation-settings: 'FILL' 1;">verified_user</span>
+                            <span class="text-[10px] font-bold text-secondary uppercase tracking-tighter">Verified</span>
+                        </div>
+                        <div class="flex items-center gap-md opacity-40 grayscale">
+                            <span class="material-symbols-outlined text-[24px]">corporate_fare</span>
+                            <span class="material-symbols-outlined text-[24px]">security</span>
+                            <span class="material-symbols-outlined text-[24px]">encrypted</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-lg flex justify-center gap-lg">
+                    <a class="font-label-md text-label-md text-outline hover:text-primary transition-colors" href="#">Privacy Policy</a>
+                    <a class="font-label-md text-label-md text-outline hover:text-primary transition-colors" href="#">Corporate Partners</a>
+                    <a class="font-label-md text-label-md text-outline hover:text-primary transition-colors" href="#">Help Center</a>
+                </div>
+            </section>
+        </main>
+        <div class="h-24 md:hidden"></div>
+    </div>
+
+    <!-- ==============================================
+         2. HOME DASHBOARD VIEW (#dashboard)
+         ============================================== -->
+    <div id="screen-dashboard" class="route-view">
+        <!-- Desktop Sidebar Nav (Pivot) -->
+        <nav class="hidden md:flex fixed top-0 left-0 h-full w-[280px] bg-surface-container-lowest border-r border-outline-variant p-lg flex-col gap-lg z-[60]">
+            <div class="font-headline-md text-headline-md font-bold text-primary mb-xl">CommuteFlow</div>
+            <div class="space-y-sm">
+                <a href="#dashboard" class="flex items-center gap-md px-md py-sm rounded-xl bg-primary text-on-primary shadow-lg cursor-pointer transition-all">
+                    <span class="material-symbols-outlined fill-1" style="font-variation-settings: 'FILL' 1;">home</span>
+                    <span class="font-semibold">Home</span>
+                </a>
+                <a href="#search" class="flex items-center gap-md px-md py-sm rounded-xl text-on-surface-variant hover:bg-surface-container cursor-pointer transition-all">
+                    <span class="material-symbols-outlined">directions_car</span>
+                    <span class="font-semibold">Find Rides</span>
+                </a>
+                <a href="#offer" class="flex items-center gap-md px-md py-sm rounded-xl text-on-surface-variant hover:bg-surface-container cursor-pointer transition-all">
+                    <span class="material-symbols-outlined">add_circle</span>
+                    <span class="font-semibold">Offer Ride</span>
+                </a>
+                <a href="#discovery" class="flex items-center gap-md px-md py-sm rounded-xl text-on-surface-variant hover:bg-surface-container cursor-pointer transition-all">
+                    <span class="material-symbols-outlined">podcasts</span>
+                    <span class="font-semibold">Driver Hub</span>
+                </a>
+                <a href="#onboarding" class="flex items-center gap-md px-md py-sm rounded-xl text-on-surface-variant hover:bg-surface-container cursor-pointer transition-all">
+                    <span class="material-symbols-outlined">logout</span>
+                    <span class="font-semibold">Logout</span>
+                </a>
+            </div>
+        </nav>
+
+        <div class="md:ml-[280px] pb-24 md:pb-6">
+            <!-- Header -->
+            <header class="w-full sticky top-0 z-50 bg-surface dark:bg-on-tertiary-container shadow-[0px_4px_12px_rgba(26,43,76,0.08)] flex justify-between items-center px-container-margin py-md">
+                <div class="flex items-center gap-3">
+                    <div class="relative">
+                        <img alt="Employee Profile Picture" class="w-10 h-10 rounded-full object-cover border-2 border-primary-fixed" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDhHrAeMSe9rYWZPl2_8Tj2i9Uc-IThUZbxKFJDbECGi7YbTA6oG46PceEjtylrgS7dZ-mK1LRu2zeW9xZ6p2_CkDvPGXnn6MMkSZquY3ovc-6LCK7xMrhD0pb3FKVdrmyRHWzWEL0ZVWzHawfGpiu2AMB9DzBkjWFPimbOihb1yZYooXyPnsSzRHKNkHQUlmJrIpz7PyABiRJgTHLeYf9GzZS3aO8PBvFYcQtbyXAtp_Ey4ByCiWGovxfEU7zY7boW82GOe8FQ4l0"/>
+                        <span class="material-symbols-outlined absolute -bottom-1 -right-1 text-[16px] text-secondary bg-white rounded-full fill-1" style="font-variation-settings: 'FILL' 1;">verified</span>
+                    </div>
+                    <h1 class="font-headline-md text-headline-md font-bold text-primary dark:text-inverse-primary">CommuteFlow</h1>
+                </div>
+                <button onclick="showNotificationToast()" class="transition-all duration-200 active:scale-95 p-2 rounded-full hover:bg-surface-container-low">
+                    <span class="material-symbols-outlined text-primary">notifications</span>
+                </button>
+            </header>
+
+            <main class="px-container-margin py-lg space-y-xl max-w-4xl mx-auto">
+                <!-- Welcome -->
+                <section class="space-y-unit">
+                    <h2 class="text-headline-xl font-headline-xl text-on-surface">Good Morning, Rahul</h2>
+                    <div class="flex items-center gap-2 text-secondary font-medium">
+                        <span class="material-symbols-outlined text-[20px]">eco</span>
+                        <p class="text-body-md">You've saved 12kg of CO2 this week</p>
+                    </div>
+                </section>
+
+                <!-- Quick Actions -->
+                <section class="grid grid-cols-2 gap-gutter">
+                    <a href="#search" class="flex flex-col items-center justify-center p-lg bg-primary-container text-on-primary-container rounded-xl shadow-md transition-all active:scale-95 hover:opacity-95">
+                        <div class="w-12 h-12 bg-primary/20 rounded-full flex items-center justify-center mb-md">
+                            <span class="material-symbols-outlined text-primary text-[32px]">search</span>
+                        </div>
+                        <span class="font-headline-md text-white">Find a Ride</span>
+                        <span class="text-label-sm mt-1 opacity-80 text-on-primary-container/70">Passenger</span>
+                    </a>
+                    <a href="#offer" class="flex flex-col items-center justify-center p-lg bg-secondary-container text-on-secondary-container rounded-xl shadow-md transition-all active:scale-95 hover:opacity-95">
+                        <div class="w-12 h-12 bg-secondary/20 rounded-full flex items-center justify-center mb-md">
+                            <span class="material-symbols-outlined text-secondary text-[32px]">directions_car</span>
+                        </div>
+                        <span class="font-headline-md text-primary">Offer a Ride</span>
+                        <span class="text-label-sm mt-1 opacity-80 text-on-secondary-container/70 font-semibold">Driver</span>
+                    </a>
+                </section>
+
+                <!-- Upcoming Ride -->
+                <section class="space-y-md">
+                    <h3 class="text-headline-md text-on-surface">Upcoming Ride</h3>
+                    <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-md shadow-sm">
+                        <div class="flex justify-between items-start mb-md">
+                            <div class="space-y-1">
+                                <p class="text-label-md text-primary font-bold uppercase tracking-wider">Next Trip: Today, 5:30 PM</p>
+                                <p class="text-headline-md">Home to Whitefield</p>
+                            </div>
+                            <span class="bg-secondary-container/30 text-on-secondary-container px-3 py-1 rounded-full text-label-sm font-bold">Confirmed</span>
+                        </div>
+                        <div class="flex items-center gap-md py-md border-t border-b border-outline-variant/30 mb-md">
+                            <img alt="Driver" class="w-12 h-12 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD4rdksJUwarY3nczWcwRyFnh-_jSXtSJC3aEuZziWDigDrSH42egayu-jXTbBpd07drpR3M2bxsq5kp1L9CVmN8fFIEqO-v5_qlkAw19G14vBEUiTkrqR_ieIZ009Hp_Bq3wNGlcLNOBWzsceGYr5q9dQ07iVOqcCzvWFQlCND2I1omHDEDqTIfYDvjONQ2uGY0OtQmY8dQCCrsatemHQE9MRogynfnjnagiGwNxCzdSmRBP3628ktfPRUiNfNy_zvDJma3FFF_YY"/>
+                            <div class="flex-1">
+                                <p class="text-body-lg font-semibold">Vikram Malhotra</p>
+                                <p class="text-body-md text-on-surface-variant">Tesla Model 3 • White</p>
+                            </div>
+                            <div class="flex items-center gap-1 text-primary">
+                                <span class="material-symbols-outlined text-[18px] fill-1 text-yellow-500" style="font-variation-settings: 'FILL' 1;">star</span>
+                                <span class="text-label-md font-bold">4.9</span>
+                            </div>
+                        </div>
+                        <div class="flex gap-md">
+                            <button onclick="bookUpcomingRide('Vikram Malhotra', 'Tesla Model 3', 'KA-03-ME-9901', '4.9', 'https://lh3.googleusercontent.com/aida-public/AB6AXuD4rdksJUwarY3nczWcwRyFnh-_jSXtSJC3aEuZziWDigDrSH42egayu-jXTbBpd07drpR3M2bxsq5kp1L9CVmN8fFIEqO-v5_qlkAw19G14vBEUiTkrqR_ieIZ009Hp_Bq3wNGlcLNOBWzsceGYr5q9dQ07iVOqcCzvWFQlCND2I1omHDEDqTIfYDvjONQ2uGY0OtQmY8dQCCrsatemHQE9MRogynfnjnagiGwNxCzdSmRBP3628ktfPRUiNfNy_zvDJma3FFF_YY')" class="flex-1 bg-primary text-white py-3 rounded-lg font-bold flex items-center justify-center gap-2 transition-all active:scale-[0.98] hover:bg-tertiary">
+                                <span class="material-symbols-outlined text-[20px]">location_on</span>
+                                Track
+                            </button>
+                            <button onclick="showToast('Vikram Malhotra: \'Hey, I will pick you up near the corner bakery.\'', 'info')" class="p-3 border border-outline-variant rounded-lg text-on-surface-variant hover:bg-surface-container transition-all active:scale-95">
+                                <span class="material-symbols-outlined">chat</span>
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Smart Matches -->
+                <section class="space-y-md">
+                    <div class="flex justify-between items-center">
+                        <h3 class="text-headline-md text-on-surface">Smart Matches</h3>
+                        <a href="#search" class="text-primary font-bold text-label-md hover:underline">View All</a>
+                    </div>
+                    <div class="flex gap-md overflow-x-auto pb-4 -mx-container-margin px-container-margin hide-scrollbar">
+                        <!-- Match 1 -->
+                        <div class="min-w-[160px] bg-white border border-outline-variant rounded-xl p-md flex flex-col items-center text-center shadow-sm">
+                            <div class="relative mb-md">
+                                <img alt="Professional" class="w-16 h-16 rounded-full object-cover border-2 border-surface-container-high" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDNRuSPJWLjByEuhLD9zEWWlKQ5DQUWc7HQuu9ateiXxX-FkKZbAnVVkCeLfpaqQWJDmb2HhoMHGmuWLMPSi9d-3RnXPnBxazezgz9WjrKGgMnV-2KGIO9oZlKeqBY-d__-6OcGu3fKhLZalWcr-pQL8J8xXV2VDmWNM4o1l_JYqf8udPtwrOQyJ_SjLw17xpA1Iji12LnAT6wjjz3VjokrxRBkfZ82m4947qcEMvISaijTEANf96Q2py33Mmsmuf9ryW04SNC4Sfo"/>
+                                <span class="absolute bottom-0 right-0 bg-secondary text-white rounded-full p-0.5 text-[12px] material-symbols-outlined fill-1" style="font-variation-settings: 'FILL' 1;">verified</span>
+                            </div>
+                            <p class="font-semibold text-on-surface">Ananya R.</p>
+                            <p class="text-label-sm text-on-surface-variant mb-md">Product at TechCorp</p>
+                            <button onclick="handleMatchBtn(this, 'Ananya R.')" class="w-full text-primary border border-primary/20 py-2 rounded-lg text-label-md font-bold hover:bg-primary/5 transition-all">Match</button>
+                        </div>
+                        <!-- Match 2 -->
+                        <div class="min-w-[160px] bg-white border border-outline-variant rounded-xl p-md flex flex-col items-center text-center shadow-sm">
+                            <div class="relative mb-md">
+                                <img alt="Professional" class="w-16 h-16 rounded-full object-cover border-2 border-surface-container-high" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBEg11l1p5IOnZbI1Y2e78MuYOr3tkN4FFyRXWqVzSIeWv5Ce5NIQXNhaWqBFO91At0n33j0aGJe8MBaiXx8ecguH2CVUyhu4EgE_QVoBsa3iot5RCGc7aozj-qGD2QjW4NMvZL4_ZvNvD_mRQE_VmOWk0aorrO20dbMKg_9xD9r-Zmk0jKE0ml3fAIUDqQwppd_RgBR1wYm4NdxznXbzAi2pPpUpwliUUoN-Jk7LAS7VOuZwqLm2WnqJ0rn5mFBOPO8rxvgJleXQA"/>
+                                <span class="absolute bottom-0 right-0 bg-secondary text-white rounded-full p-0.5 text-[12px] material-symbols-outlined fill-1" style="font-variation-settings: 'FILL' 1;">verified</span>
+                            </div>
+                            <p class="font-semibold text-on-surface">Siddharth V.</p>
+                            <p class="text-label-sm text-on-surface-variant mb-md">Lead Dev at Finly</p>
+                            <button onclick="handleMatchBtn(this, 'Siddharth V.')" class="w-full text-primary border border-primary/20 py-2 rounded-lg text-label-md font-bold hover:bg-primary/5 transition-all">Match</button>
+                        </div>
+                        <!-- Match 3 -->
+                        <div class="min-w-[160px] bg-white border border-outline-variant rounded-xl p-md flex flex-col items-center text-center shadow-sm">
+                            <div class="relative mb-md">
+                                <img alt="Professional" class="w-16 h-16 rounded-full object-cover border-2 border-surface-container-high" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBh8ttiPhjiYuyEyCKTVD-h8wpA1Nw3MkOSVgdOQWzkwEMW8f2qHMMUEVWXDVYyiuTNAFfdpn35dVqap5xTEap5nNyzyZEy5MzpUalCYRoe75PpLo1rb73di5fIkQRwFQtVKpzMxYnlqPElD7RJ4nsLVRdkO7h7UIwu4NlNm2J9LqqhiZBZ5LmE6ndzWWYq0m6EToSlLXvNGle6nHQ_Ibmq2QLjECC-6kM0fiick29AM4vFjWpoQSPNk2EBeCDiVEM484Rf5SEE8LU"/>
+                                <span class="absolute bottom-0 right-0 bg-secondary text-white rounded-full p-0.5 text-[12px] material-symbols-outlined fill-1" style="font-variation-settings: 'FILL' 1;">verified</span>
+                            </div>
+                            <p class="font-semibold text-on-surface">Priya S.</p>
+                            <p class="text-label-sm text-on-surface-variant mb-md">HR at GlobalSolutions</p>
+                            <button onclick="handleMatchBtn(this, 'Priya S.')" class="w-full text-primary border border-primary/20 py-2 rounded-lg text-label-md font-bold hover:bg-primary/5 transition-all">Match</button>
+                        </div>
+                    </div>
+                </section>
+            </main>
+            
+            <!-- Bottom Tab Bar -->
+            <nav class="fixed bottom-0 left-0 w-full z-50 rounded-t-xl bg-surface-container-lowest border-t border-outline-variant shadow-[0px_-4px_12px_rgba(26,43,76,0.08)] flex justify-around items-center h-[72px] px-sm md:hidden">
+                <a class="flex flex-col items-center justify-center bg-primary-container text-on-primary-container rounded-xl px-4 py-1.5 transition-all" href="#dashboard">
+                    <span class="material-symbols-outlined fill-1" style="font-variation-settings: 'FILL' 1;">home</span>
+                    <span class="font-label-md text-label-md">Home</span>
+                </a>
+                <a class="flex flex-col items-center justify-center text-on-surface-variant px-4 py-1.5 transition-all hover:text-primary" href="#search">
+                    <span class="material-symbols-outlined">directions_car</span>
+                    <span class="font-label-md text-label-md">Rides</span>
+                </a>
+                <a class="flex flex-col items-center justify-center text-on-surface-variant px-4 py-1.5 transition-all hover:text-primary" href="#offer">
+                    <span class="material-symbols-outlined">add_circle</span>
+                    <span class="font-label-md text-label-md">Offer</span>
+                </a>
+                <a class="flex flex-col items-center justify-center text-on-surface-variant px-4 py-1.5 transition-all hover:text-primary" href="#discovery">
+                    <span class="material-symbols-outlined">podcasts</span>
+                    <span class="font-label-md text-label-md">Driver</span>
+                </a>
+            </nav>
+        </div>
+    </div>
+
+    <!-- ==============================================
+         3. RIDE SEARCH & SELECTION VIEW (#search)
+         ============================================== -->
+    
+
+    <!-- ==============================================
+         4. OFFER A RIDE VIEW (#offer)
+         ============================================== -->
+    
+
+    <!-- ==============================================
+         5. NEARBY EMPLOYEE DISCOVERY VIEW (#discovery)
+         ============================================== -->
+    <div id="screen-discovery" class="route-view">
+        <!-- Desktop Sidebar Nav -->
+        <nav class="hidden md:flex fixed top-0 left-0 h-full w-[280px] bg-surface-container-lowest border-r border-outline-variant p-lg flex-col gap-lg z-[60]">
+            <div class="font-headline-md text-headline-md font-bold text-primary mb-xl">CommuteFlow</div>
+            <div class="space-y-sm">
+                <a href="#dashboard" class="flex items-center gap-md px-md py-sm rounded-xl text-on-surface-variant hover:bg-surface-container cursor-pointer transition-all">
+                    <span class="material-symbols-outlined">home</span>
+                    <span class="font-semibold">Home</span>
+                </a>
+                <a href="#search" class="flex items-center gap-md px-md py-sm rounded-xl text-on-surface-variant hover:bg-surface-container cursor-pointer transition-all">
+                    <span class="material-symbols-outlined">directions_car</span>
+                    <span class="font-semibold">Find Rides</span>
+                </a>
+                <a href="#offer" class="flex items-center gap-md px-md py-sm rounded-xl text-on-surface-variant hover:bg-surface-container cursor-pointer transition-all">
+                    <span class="material-symbols-outlined">add_circle</span>
+                    <span class="font-semibold">Offer Ride</span>
+                </a>
+                <a href="#discovery" class="flex items-center gap-md px-md py-sm rounded-xl bg-primary text-on-primary shadow-lg cursor-pointer transition-all">
+                    <span class="material-symbols-outlined fill-1" style="font-variation-settings: 'FILL' 1;">podcasts</span>
+                    <span class="font-semibold">Driver Hub</span>
+                </a>
+                <a href="#onboarding" class="flex items-center gap-md px-md py-sm rounded-xl text-on-surface-variant hover:bg-surface-container cursor-pointer transition-all">
+                    <span class="material-symbols-outlined">logout</span>
+                    <span class="font-semibold">Logout</span>
+                </a>
+            </div>
+        </nav>
+
+        <div class="md:ml-[280px] pb-36">
+            <!-- Header -->
+            <header class="w-full sticky top-0 z-50 bg-surface dark:bg-on-tertiary-container shadow-[0px_4px_12px_rgba(26,43,76,0.08)] flex justify-between items-center px-container-margin py-md">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full overflow-hidden border-2 border-primary-fixed">
+                        <img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBJGUsQdeMULPASzA9TCfvQXwbOEdaa-hRn75BVKbW6Rcbx80HtxcP3tyiEHcHsol7a_Ve5J9Fcy3QOE_DKvpC0hBEi3W-EHRIaYpWN9ra616M2INUI7m8AqfHaXODCWAky1MAFDpG9rlAbkfBZttywss4T9eRijkGNdtiXA6q6aG94m2upOpzEOL1wkRjUMQkIRpOX9uBn5HdLOO7bQPmiBb1taI6WkEq6wB1y68Y--RsflXwcwIpi89ffKyjG9A9JLej_2NNEXII"/>
+                    </div>
+                    <div class="flex flex-col">
+                        <span class="font-headline-md text-headline-md font-bold text-primary leading-tight">CommuteFlow</span>
+                        <span class="text-label-sm font-label-sm text-on-surface-variant flex items-center gap-1 font-semibold">
+                            <span class="material-symbols-outlined text-[14px] text-secondary fill-1" style="font-variation-settings: 'FILL' 1;">verified</span>
+                            Verified Driver Mode
+                        </span>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="showNotificationToast()" class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container-low text-primary active:scale-95 transition-all">
+                        <span class="material-symbols-outlined">notifications</span>
+                    </button>
+                </div>
+            </header>
+
+            <main class="max-w-4xl mx-auto">
+                <!-- Driver Status -->
+                <section class="px-container-margin py-md bg-surface-container-lowest">
+                    <div class="flex items-center justify-between mb-4 bg-secondary-container/10 p-3 rounded-xl border border-secondary-fixed/30">
+                        <div class="flex items-center gap-3">
+                            <div class="w-3 h-3 rounded-full bg-secondary pulse-green"></div>
+                            <span class="font-headline-md text-headline-md text-secondary font-bold">Online Mode Active</span>
+                        </div>
+                        <a href="#dashboard" class="text-label-md font-label-md bg-white text-on-surface px-4 py-1.5 rounded-full border border-outline-variant shadow-sm hover:bg-surface-container transition-colors">
+                            Go Offline
+                        </a>
+                    </div>
+                    <div class="flex items-center gap-4 bg-primary p-4 rounded-xl text-on-primary shadow-lg">
+                        <div class="w-12 h-12 bg-primary-container rounded-lg flex items-center justify-center text-primary-fixed-dim">
+                            <span class="material-symbols-outlined text-[32px]">route</span>
+                        </div>
+                        <div>
+                            <h3 class="font-headline-md text-headline-md text-white leading-tight font-semibold">Home to Office Cluster</h3>
+                            <p class="text-label-md font-label-md opacity-85 uppercase tracking-wider">Route Active • Optimized by AI</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Map View -->
+                <section class="relative h-[300px] overflow-hidden shadow-inner">
+                    <div class="absolute inset-0 z-0 bg-surface-dim">
+                        <img class="absolute inset-0 w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCCNq31XKWgx1nGaRCGWPSA0SihgFT5qi_JGfSMz69WXoZDK13TXNQDZB2n3R4owjYyCHCPYZxHLhjxsrW59M6Feu7Lf2Pk0y-j1Y8OsD-iUJp7vCnGMbRH252KBbvyrZJaxhCxt5ieyDAtKr3M8F32P8djn9hr8sW5h2fbqz6518yKh6Br3wPCmFRX2BZ7mbhvqSBTO2_-SduLCYtt8321G3O9A7zIH_sUuQ1DQ8ys9XVmvbpFoK3iY-C6z6mi0rOO_EE9PAD9aJA"/>
+                    </div>
+                    <div class="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent pointer-events-none"></div>
+                    <!-- Overlays -->
+                    <div class="absolute top-4 left-4 z-10 glass-effect p-2 rounded-lg border border-white/50 shadow-md">
+                        <div class="flex items-center gap-2 text-label-sm font-label-sm text-on-surface">
+                            <span class="w-2 h-2 rounded-full bg-secondary"></span>
+                            14 Professionals Nearby
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Nearby Carousel -->
+                <section class="px-container-margin -mt-6 relative z-20">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="font-headline-lg-mobile text-headline-lg-mobile text-primary font-bold">Nearby Professionals</h2>
+                        <span class="text-label-md font-label-md text-secondary bg-secondary/10 px-3 py-1 rounded-full border border-secondary/20 font-semibold">Within 1km</span>
+                    </div>
+                    <div class="flex gap-4 overflow-x-auto hide-scrollbar pb-6 -mx-container-margin px-container-margin snap-x">
+                        <!-- Profile Card 1 -->
+                        <div class="min-w-[280px] bg-white rounded-xl shadow-[0px_4px_12px_rgba(26,43,76,0.08)] border border-outline-variant p-4 snap-center flex flex-col gap-3">
+                            <div class="flex items-start justify-between">
+                                <div class="relative">
+                                    <div class="w-16 h-16 rounded-xl overflow-hidden border-2 border-primary-container">
+                                        <img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA8c4wwA6m5i81U0VLUURNN5xzCVAzIk7jePSjnE8FozAcq29fLdBds7qvPgJbUu8Z4Ub9cDJsF_VGkVf1ObPRPJyKsDmh-F8fOZDh-NG0S43d-LOVwRH1RG2ZB-1WgB-gQklN2Wo2ECKg_vJD1uux1syigyyFVzkJcLfLnw1INVBR0_hMp8nqKV7D6afM8em3nfpqoqH41FE06F-H43TQ4tmPIIfZLH_RyZoDbhKtcu3M8bQRx4GZMZ833NihBgqMgMFXizIcEFxg"/>
+                                    </div>
+                                    <div class="absolute -bottom-1 -right-1 bg-white rounded-full p-1 shadow-sm">
+                                        <span class="material-symbols-outlined text-secondary text-[16px] fill-1" style="font-variation-settings: 'FILL' 1;">verified</span>
+                                    </div>
+                                </div>
+                                <div class="bg-secondary/10 text-secondary text-[11px] font-bold px-2 py-1 rounded-full flex items-center gap-1 border border-secondary/20">
+                                    <span class="material-symbols-outlined text-[12px] fill-1" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+                                    SMART MATCH
+                                </div>
+                            </div>
+                            <div>
+                                <h4 class="font-headline-md text-headline-md text-primary font-bold">Ananya R.</h4>
+                                <p class="text-body-md text-on-surface-variant">Product Manager @ TechCorp</p>
+                            </div>
+                            <div class="bg-surface-container-low p-3 rounded-lg flex flex-col gap-2">
+                                <div class="flex items-center gap-2 text-label-sm text-on-surface-variant font-medium">
+                                    <span class="material-symbols-outlined text-[16px]">location_on</span>
+                                    Lives 400m away
+                                </div>
+                                <div class="flex items-center gap-2 text-label-sm text-on-surface-variant font-medium">
+                                    <span class="material-symbols-outlined text-[16px]">work</span>
+                                    Works 2km from your office
+                                </div>
+                                <div class="mt-2 pt-2 border-t border-outline-variant/30 text-label-sm font-label-sm text-primary flex items-center gap-2 font-semibold">
+                                    <span class="material-symbols-outlined text-[16px]">meeting_room</span>
+                                    Common Point: West Gate 4
+                                </div>
+                            </div>
+                            <button onclick="inviteDriverToRide(this, 'Ananya R.')" class="w-full bg-primary hover:bg-tertiary text-on-primary py-3 rounded-lg font-label-md flex items-center justify-center gap-2 transition-all active:scale-95 shadow-md">
+                                <span class="material-symbols-outlined text-[20px]">notifications_active</span>
+                                Invite to Ride
+                            </button>
+                        </div>
+                        <!-- Profile Card 2 -->
+                        <div class="min-w-[280px] bg-white rounded-xl shadow-[0px_4px_12px_rgba(26,43,76,0.08)] border border-outline-variant p-4 snap-center flex flex-col gap-3">
+                            <div class="flex items-start justify-between">
+                                <div class="relative">
+                                    <div class="w-16 h-16 rounded-xl overflow-hidden border-2 border-primary-container">
+                                        <img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDGHnI_sRAbkdMRPcangBi7-b_KXx_gZVnhsy0onVyHXhiSBP-SmBkjKU58fffgII8MMcCyvItXDnODfPr3CPYGrS7bGvQ_URvFZcbKGvbgFglVVBQFgwHv8Kf24QAxCYirSagm-ZasoQ9nhXz3cu-kdVK8xkMB7YENfzAlqv6HWx0Tgllzks4bw4p7wb89aXe71xAOPUDa-BjZBiKVG-qC_rA2DsOy4DE7LJRmzur7-8YMVXfBehm37e14XSGrCs0fy_2AW8vAzPs"/>
+                                    </div>
+                                    <div class="absolute -bottom-1 -right-1 bg-white rounded-full p-1 shadow-sm">
+                                        <span class="material-symbols-outlined text-secondary text-[16px] fill-1" style="font-variation-settings: 'FILL' 1;">verified</span>
+                                    </div>
+                                </div>
+                                <div class="bg-secondary/10 text-secondary text-[11px] font-bold px-2 py-1 rounded-full flex items-center gap-1 border border-secondary/20">
+                                    <span class="material-symbols-outlined text-[12px] fill-1" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+                                    TOP MATCH
+                                </div>
+                            </div>
+                            <div>
+                                <h4 class="font-headline-md text-headline-md text-primary font-bold">David L.</h4>
+                                <p class="text-body-md text-on-surface-variant font-medium">Senior Engineer @ CloudScale</p>
+                            </div>
+                            <div class="bg-surface-container-low p-3 rounded-lg flex flex-col gap-2">
+                                <div class="flex items-center gap-2 text-label-sm text-on-surface-variant font-medium">
+                                    <span class="material-symbols-outlined text-[16px]">location_on</span>
+                                    Lives 650m away
+                                </div>
+                                <div class="flex items-center gap-2 text-label-sm text-on-surface-variant font-medium">
+                                    <span class="material-symbols-outlined text-[16px]">work</span>
+                                    Same Building Destination
+                                </div>
+                                <div class="mt-2 pt-2 border-t border-outline-variant/30 text-label-sm font-label-sm text-primary flex items-center gap-2 font-semibold">
+                                    <span class="material-symbols-outlined text-[16px]">meeting_room</span>
+                                    Common Point: Lobby Cafe
+                                </div>
+                            </div>
+                            <button onclick="inviteDriverToRide(this, 'David L.')" class="w-full bg-primary hover:bg-tertiary text-on-primary py-3 rounded-lg font-label-md flex items-center justify-center gap-2 transition-all active:scale-95 shadow-md">
+                                <span class="material-symbols-outlined text-[20px]">notifications_active</span>
+                                Invite to Ride
+                            </button>
+                        </div>
+                    </div>
+                </section>
+            </main>
+
+            <!-- Bottom Broadcast status -->
+            <div class="fixed bottom-[72px] left-0 w-full z-40 bg-white shadow-[0px_-8px_20px_rgba(26,43,76,0.1)] border-t border-outline-variant p-container-margin md:ml-[280px] md:w-[calc(100%-280px)]">
+                <div class="flex flex-col gap-4 max-w-md mx-auto">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <div class="flex -space-x-2">
+                                <div class="w-8 h-8 rounded-full border-2 border-white bg-primary text-white flex items-center justify-center text-[10px] font-bold">JD</div>
+                                <div class="w-8 h-8 rounded-full border-2 border-white bg-secondary text-white flex items-center justify-center text-[10px] font-bold">+1</div>
+                                <div class="w-8 h-8 rounded-full border-2 border-white bg-surface-variant border-dashed flex items-center justify-center">
+                                    <span class="material-symbols-outlined text-[14px] text-outline">person_add</span>
+                                </div>
+                                <div class="w-8 h-8 rounded-full border-2 border-white bg-surface-variant border-dashed flex items-center justify-center">
+                                    <span class="material-symbols-outlined text-[14px] text-outline">person_add</span>
+                                </div>
+                            </div>
+                            <span class="text-label-md font-label-md text-primary ml-2 font-bold">3/4 Seats Available</span>
+                        </div>
+                        <div class="h-2 flex-1 mx-4 bg-surface-container rounded-full overflow-hidden">
+                            <div class="h-full bg-secondary w-1/4 rounded-full"></div>
+                        </div>
+                    </div>
+                    <button onclick="handleBroadcast(this)" class="w-full bg-secondary hover:opacity-90 text-on-secondary py-4 rounded-xl font-headline-md flex items-center justify-center gap-3 transition-all active:scale-95 shadow-lg relative overflow-hidden group">
+                        <span class="material-symbols-outlined text-[24px]">podcasts</span>
+                        Broadcast to All
+                        <div class="absolute inset-0 bg-white/10 scale-x-0 group-hover:scale-x-100 transition-transform origin-left"></div>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Bottom Tab Bar -->
+            <nav class="fixed bottom-0 left-0 w-full z-50 rounded-t-xl bg-surface-container-lowest border-t border-outline-variant shadow-[0px_-4px_12px_rgba(26,43,76,0.08)] flex justify-around items-center h-[72px] px-sm md:hidden">
+                <a class="flex flex-col items-center justify-center text-on-surface-variant px-4 py-1.5 transition-all hover:text-primary" href="#dashboard">
+                    <span class="material-symbols-outlined">home</span>
+                    <span class="font-label-md text-label-md">Home</span>
+                </a>
+                <a class="flex flex-col items-center justify-center text-on-surface-variant px-4 py-1.5 transition-all hover:text-primary" href="#search">
+                    <span class="material-symbols-outlined">directions_car</span>
+                    <span class="font-label-md text-label-md">Rides</span>
+                </a>
+                <a class="flex flex-col items-center justify-center text-on-surface-variant px-4 py-1.5 transition-all hover:text-primary" href="#offer">
+                    <span class="material-symbols-outlined">add_circle</span>
+                    <span class="font-label-md text-label-md">Offer</span>
+                </a>
+                <a class="flex flex-col items-center justify-center bg-primary-container text-on-primary-container rounded-xl px-4 py-1.5 transition-all" href="#discovery">
+                    <span class="material-symbols-outlined fill-1" style="font-variation-settings: 'FILL' 1;">podcasts</span>
+                    <span class="font-label-md text-label-md">Driver</span>
+                </a>
+            </nav>
+        </div>
+    </div>
+
+    <!-- ==============================================
+         6. LIVE TRIP TRACKING VIEW (#tracking)
+         ============================================== -->
+    <div id="screen-tracking" class="route-view">
+        <!-- Top App Bar -->
+        <header class="bg-surface w-full sticky top-0 z-50 shadow-[0px_4px_12px_rgba(26,43,76,0.08)] flex justify-between items-center px-container-margin py-md">
+            <div class="flex items-center gap-sm">
+                <a href="#dashboard" class="w-10 h-10 rounded-full overflow-hidden border-2 border-primary-fixed flex items-center justify-center hover:bg-surface-container-low transition-all active:scale-95">
+                    <span class="material-symbols-outlined text-primary">arrow_back</span>
+                </a>
+                <h1 class="font-headline-md text-headline-md font-bold text-primary leading-tight">Live Tracking</h1>
+            </div>
+            <div class="text-primary flex items-center transition-all duration-200 active:scale-95 cursor-pointer">
+                <span class="material-symbols-outlined text-[28px] fill-1 text-secondary" style="font-variation-settings: 'FILL' 1;">verified</span>
+            </div>
+        </header>
+
+        <!-- Tracking Layout -->
+        <main class="relative h-[calc(100vh-72px)] overflow-hidden">
+            <!-- Interactive Leaflet Map -->
+            <div class="absolute inset-0 z-0">
+                <div id="tracking-map" class="w-full h-full"></div>
+            </div>
+
+            <!-- Floating PiP Live Street View Feed -->
+            <div class="absolute bottom-[280px] right-container-margin z-20 max-w-xs w-48 md:w-64 bg-white/95 backdrop-blur-md rounded-xl shadow-lg border border-outline-variant overflow-hidden pointer-events-auto transition-all duration-300 hover:scale-105">
+                <div class="bg-primary text-white px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider flex justify-between items-center">
+                    <span>📷 Live Street View</span>
+                    <span class="w-2 h-2 rounded-full bg-secondary pulse-green"></span>
+                </div>
+                <div class="relative h-24 md:h-32 bg-surface-container">
+                    <img id="streetview-img" class="w-full h-full object-cover transition-opacity duration-500" src="https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?auto=format&fit=crop&w=400&q=80"/>
+                    <div class="absolute bottom-0 left-0 right-0 bg-black/60 text-white p-1 text-[10px] text-center font-medium" id="streetview-label">
+                        St Thomas St, London
+                    </div>
+                </div>
+            </div>
+
+            <!-- Floating Recenter Map Button -->
+            <div class="absolute bottom-[430px] right-container-margin z-20 pointer-events-auto">
+                <button onclick="recenterTrackingMap()" class="w-10 h-10 bg-white/95 backdrop-blur-md rounded-full shadow-md border border-outline-variant flex items-center justify-center text-primary hover:bg-surface-container-low transition-all active:scale-90">
+                    <span class="material-symbols-outlined text-[20px]">my_location</span>
+                </button>
+            </div>
+
+            <!-- Floating Collapsible Trip Details Card (Top Left - Half Size) -->
+            <div class="absolute top-4 left-4 z-20 max-w-xs w-64 md:w-80 pointer-events-auto select-none">
+                <div id="tracking-details-card" class="bg-white/95 backdrop-blur-md rounded-2xl shadow-xl border border-outline-variant overflow-hidden transition-all duration-300">
+                    <!-- Header (Trigger) -->
+                    <button onclick="toggleDetailsCard()" class="w-full px-3 py-2.5 bg-primary text-white flex items-center justify-between outline-none">
+                        <div class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-[18px] text-inverse-primary fill-1" style="font-variation-settings: 'FILL' 1;">verified_user</span>
+                            <span class="text-[10px] font-bold uppercase tracking-wider">Trip Details</span>
+                        </div>
+                        <span id="details-chevron" class="material-symbols-outlined transition-transform duration-200">keyboard_arrow_down</span>
+                    </button>
+                    
+                    <!-- Collapsible Content -->
+                    <div id="details-content" class="p-3 space-y-3 transition-all duration-300 opacity-100" style="max-height: 400px; overflow: hidden;">
+                        <!-- Driver & Vehicle Details -->
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <div class="relative">
+                                    <img id="tracking-driver-img" class="w-10 h-10 rounded-full object-cover border" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDwHZra_dedymmCVoUyoxT3qC2OXACXZThgtmGJMHYSt0_lx5CjVJOh--BHyEVK1mQRQtZ3iOcY_JnjUkZ0_Gm0r-MhYHs26cZ7QcUZ_QZp1e5zbtkhXYRsAIHIdqQeNu3OARxyghft3eM7dbD_ddVRFVAdvfJDiud1oszJP5XsPxSC4mGFo4yPobUIzKKFoPnK49cPC3UtGEaX5WizzXFGi8fDZWkZDAlwB1GBNd6hfGoR9CmLjMMwJejYK-M0ScsK1DAwPT6JCB8"/>
+                                    <div class="absolute -bottom-1 -right-1 bg-secondary border border-white rounded-full p-[2px] flex items-center justify-center">
+                                        <span class="material-symbols-outlined text-[8px] text-white filled-icon">star</span>
+                                    </div>
+                                </div>
+                                <div>
+                                    <h3 id="tracking-driver-name" class="text-xs font-bold text-primary">Robert Jenkins</h3>
+                                    <p id="tracking-vehicle" class="text-[10px] text-on-surface-variant leading-none">Toyota Prius • <span class="font-bold">ABC-1234</span></p>
+                                </div>
+                            </div>
+                            <div class="flex gap-1.5">
+                                <button onclick="showToast('Calling driver...', 'info')" class="w-8 h-8 flex items-center justify-center rounded-full border border-primary/20 text-primary transition-all active:scale-90 hover:bg-surface-container-low">
+                                    <span class="material-symbols-outlined text-[16px]">call</span>
+                                </button>
+                                <button onclick="showToast('Opening chat...', 'info')" class="w-8 h-8 flex items-center justify-center rounded-full bg-primary text-white transition-all active:scale-90 hover:opacity-90">
+                                    <span class="material-symbols-outlined text-[16px]">chat_bubble</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Pickup Details -->
+                        <div class="flex items-start gap-2 pl-1.5 border-l border-dashed border-outline-variant relative ml-1">
+                            <div class="absolute -left-[5px] top-0 w-2.5 h-2.5 rounded-full bg-secondary"></div>
+                            <div class="absolute -left-[5px] bottom-0 w-2.5 h-2.5 rounded-full bg-primary"></div>
+                            <div class="flex flex-col gap-3">
+                                <div class="-mt-[2px] leading-none">
+                                    <p class="text-[8px] font-bold text-outline">CURRENT LOCATION</p>
+                                    <p id="tracking-location-start" class="text-xs text-primary font-medium">Bellandur Outer Ring Road</p>
+                                </div>
+                                <div class="-mb-[2px] leading-none">
+                                    <p class="text-[8px] font-bold text-secondary">PICKUP POINT</p>
+                                    <p id="tracking-location-end" class="text-xs text-primary font-medium">Ecospace Plaza - Gate 4</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Actions Row -->
+                        <div class="grid grid-cols-2 gap-2 pt-2 border-t border-outline-variant/30">
+                            <button onclick="showToast('Tracking link copied!', 'success')" class="flex items-center justify-center gap-1 bg-surface-container-high py-2 rounded-lg text-[10px] text-primary font-bold transition-all active:scale-95">
+                                <span class="material-symbols-outlined text-[14px]">share_location</span>
+                                Share
+                            </button>
+                            <button onclick="showToast('Security alerted!', 'primary')" class="flex items-center justify-center gap-1 bg-error/10 py-2 rounded-lg text-[10px] text-error font-bold transition-all active:scale-95">
+                                <span class="material-symbols-outlined text-[14px]">shield</span>
+                                Safety
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Floating ETA info (Bottom Center on Mobile / Top Right on Desktop) -->
+            <div class="absolute bottom-[88px] md:bottom-auto md:top-4 left-4 right-4 md:left-auto md:right-4 z-20 pointer-events-none md:max-w-xs w-auto md:w-64">
+                <div class="bg-white/95 backdrop-blur-md p-3 rounded-xl shadow-md flex items-center justify-between border border-outline-variant pointer-events-auto">
+                    <div class="flex flex-col">
+                        <span class="text-[10px] font-bold text-outline uppercase tracking-wider">Arriving In</span>
+                        <span class="font-headline-md text-primary font-bold leading-tight" id="eta-timer">4 mins</span>
+                    </div>
+                    <div class="h-8 w-[1px] bg-outline-variant mx-3"></div>
+                    <div class="flex flex-col items-end">
+                        <span class="text-[10px] font-bold text-outline uppercase tracking-wider">Distance</span>
+                        <span class="font-headline-md text-primary font-bold leading-tight">1.2 km</span>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Booking Confirmation Modal -->
+    <div id="booking-modal" class="fixed inset-0 z-[100] bg-black/60 hidden items-center justify-center p-md backdrop-blur-sm transition-opacity duration-300 opacity-0">
+        <div class="bg-white rounded-2xl max-w-md w-full border border-outline-variant shadow-2xl overflow-hidden p-lg flex flex-col gap-lg transform translate-y-4 transition-transform duration-300">
+            <div class="flex items-center gap-md text-primary">
+                <div class="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center text-primary">
+                    <span class="material-symbols-outlined text-[28px] fill-1" style="font-variation-settings: 'FILL' 1;">directions_car</span>
+                </div>
+                <div>
+                    <h3 class="font-headline-md font-bold">Confirm Booking</h3>
+                    <p class="text-body-md text-on-surface-variant">Review driver details before confirming</p>
+                </div>
+            </div>
+            
+            <div class="border border-outline-variant rounded-xl p-md bg-surface-container-low flex items-center justify-between">
+                <div class="flex items-center gap-md">
+                    <img id="modal-driver-img" class="w-12 h-12 rounded-full object-cover border border-outline-variant" src=""/>
+                    <div>
+                        <p id="modal-driver-name" class="font-bold text-primary"></p>
+                        <p id="modal-vehicle" class="text-label-sm text-on-surface-variant"></p>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <p id="modal-price" class="font-headline-md font-bold text-secondary"></p>
+                </div>
+            </div>
+
+            <div class="flex gap-md mt-2">
+                <button onclick="closeBookingModal()" class="flex-1 bg-surface-container-high py-3 rounded-xl font-semibold text-primary active:scale-[0.98] transition-all hover:bg-surface-variant">Cancel</button>
+                <button onclick="confirmBooking()" class="flex-1 bg-primary text-white py-3 rounded-xl font-bold active:scale-[0.98] transition-all hover:bg-tertiary">Confirm</button>
+            </div>
+        </div>
+    </div>
+    <!-- ==============================================
+         5. PROFILE / SETTINGS VIEW (#profile)
+         ============================================== -->
+    <div id="screen-profile" class="route-view">
+        <!-- Desktop Sidebar Nav -->
+        <nav class="hidden md:flex fixed top-0 left-0 h-full w-[280px] bg-surface-container-lowest border-r border-outline-variant p-lg flex-col gap-lg z-[60]">
+            <div class="font-headline-md text-headline-md font-bold text-primary mb-xl">CommuteFlow</div>
+            <div class="space-y-sm" id="sidebar-nav-profile">
+                <!-- Nav dynamically injected or synced -->
+            </div>
+        </nav>
+
+        <div class="md:ml-[280px] pb-24 md:pb-6">
+            <!-- Header -->
+            <header class="w-full sticky top-0 z-50 bg-surface shadow-[0px_4px_12px_rgba(26,43,76,0.08)] flex justify-between items-center px-container-margin py-md">
+                <div class="flex items-center gap-3">
+                    <span class="font-headline-md text-headline-md font-bold text-primary" id="profile-header-title">My Profile</span>
+                </div>
+                <button onclick="logout()" class="text-on-surface-variant hover:text-primary transition-colors flex items-center gap-2">
+                    <span class="font-label-md">Logout</span>
+                    <span class="material-symbols-outlined">logout</span>
+                </button>
+            </header>
+
+            <main class="max-w-[1200px] mx-auto px-container-margin pt-lg pb-xl">
+                <!-- Tab Headers -->
+                <div class="flex border-b border-outline-variant mb-lg">
+                    <button id="profile-tab-action" class="flex-1 py-3 font-headline-md text-primary border-b-2 border-primary transition-colors" onclick="switchProfileTab('action')">
+                        Offer a Ride
+                    </button>
+                    <button id="profile-tab-details" class="flex-1 py-3 font-headline-md text-on-surface-variant border-b-2 border-transparent hover:text-primary transition-colors" onclick="switchProfileTab('details')">
+                        My Profile
+                    </button>
+                </div>
+
+                <!-- Tab 1: Action Frame -->
+                <div id="profile-frame-action" class="flex flex-col gap-lg w-full h-full">
+                    <div id="driver-action-content" class="hidden flex-col h-full w-full">
+<!-- Desktop Sidebar Nav -->
+        <nav class="hidden md:flex fixed top-0 left-0 h-full w-[280px] bg-surface-container-lowest border-r border-outline-variant p-lg flex-col gap-lg z-[60]">
+            <div class="font-headline-md text-headline-md font-bold text-primary mb-xl">CommuteFlow</div>
+            <div class="space-y-sm">
+                <a href="#dashboard" class="flex items-center gap-md px-md py-sm rounded-xl text-on-surface-variant hover:bg-surface-container cursor-pointer transition-all">
+                    <span class="material-symbols-outlined">home</span>
+                    <span class="font-semibold">Home</span>
+                </a>
+                <a href="#search" class="flex items-center gap-md px-md py-sm rounded-xl text-on-surface-variant hover:bg-surface-container cursor-pointer transition-all">
+                    <span class="material-symbols-outlined">directions_car</span>
+                    <span class="font-semibold">Find Rides</span>
+                </a>
+                <a href="#offer" class="flex items-center gap-md px-md py-sm rounded-xl bg-primary text-on-primary shadow-lg cursor-pointer transition-all">
+                    <span class="material-symbols-outlined fill-1" style="font-variation-settings: 'FILL' 1;">add_circle</span>
+                    <span class="font-semibold">Offer Ride</span>
+                </a>
+                <a href="#discovery" class="flex items-center gap-md px-md py-sm rounded-xl text-on-surface-variant hover:bg-surface-container cursor-pointer transition-all">
+                    <span class="material-symbols-outlined">podcasts</span>
+                    <span class="font-semibold">Driver Hub</span>
+                </a>
+                <a href="#onboarding" class="flex items-center gap-md px-md py-sm rounded-xl text-on-surface-variant hover:bg-surface-container cursor-pointer transition-all">
+                    <span class="material-symbols-outlined">logout</span>
+                    <span class="font-semibold">Logout</span>
+                </a>
+            </div>
+        </nav>
+
+        <div class="md:ml-[280px] pb-24 md:pb-6">
+            <!-- Header -->
+            <header class="w-full sticky top-0 z-50 bg-surface shadow-[0px_4px_12px_rgba(26,43,76,0.08)] flex justify-between items-center px-container-margin py-md">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center overflow-hidden border-2 border-primary/10">
+                        <img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBw24NKav1IVo7c2clCArSuXvRsZ0QkjFy7NNoUZeu6vKGM_minvZL75tJMtGBPTaH4yg45aCD9hYqTnIyvxrlTmYbBSmjh1E5f_0FwfgLJZGRRM5rS7bYvCDpFd3S0v-DFbdEaaB3bQzOPHFVeQ0FkdzKdc_mN_-WtGMqvoMmROKyPbva4M-wojnq1OnHMV3QoOj714GMNPMId10NagKpPm9o76V26PyCirootNy5er6JdoqpbBLrhRRJ5h5ZCBEOukqEXavokex8"/>
+                    </div>
+                    <span class="font-headline-md text-headline-md font-bold text-primary">CommuteFlow</span>
+                </div>
+                <div class="flex items-center gap-4">
+                    <button class="text-primary dark:text-primary-fixed">
+                        <span class="material-symbols-outlined fill-1" style="font-variation-settings: 'FILL' 1;">verified</span>
+                    </button>
+                </div>
+            </header>
+
+            <main class="max-w-[1200px] mx-auto px-container-margin pt-lg pb-xl">
+                <div class="flex flex-col gap-lg">
+                    <!-- Left: Form Setup -->
+                    <div class="space-y-lg">
+                        <section class="space-y-sm">
+                            <h1 class="font-headline-xl text-headline-xl text-primary">Offer a Ride</h1>
+                            <p class="text-on-surface-variant font-body-md">Set up your route and start earning by sharing your commute.</p>
+                        </section>
+                        <!-- Form inputs -->
+                        <div class="bg-surface-container-lowest p-md rounded-xl border border-outline-variant space-y-md">
+                            <div class="space-y-xs">
+                                <label class="font-label-md text-label-md text-on-surface-variant">Home Cluster</label>
+                                <div class="relative">
+                                    <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline">home</span>
+                                    <input class="w-full pl-10 pr-4 py-3 rounded-lg border border-outline focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none transition-all text-body-md" placeholder="e.g., Whitefield Residency" type="text" value="Whitefield Residency"/>
+                                </div>
+                            </div>
+                            <div class="space-y-xs">
+                                <label class="font-label-md text-label-md text-on-surface-variant">Office Cluster</label>
+                                <div class="relative">
+                                    <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline">corporate_fare</span>
+                                    <input class="w-full pl-10 pr-4 py-3 rounded-lg border border-outline focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none transition-all text-body-md" placeholder="e.g., Tech Park North" type="text" value="Tech Park North"/>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Time & Seats -->
+                        <div class="bg-surface-container-lowest p-md rounded-xl border border-outline-variant grid grid-cols-2 gap-gutter">
+                            <div class="space-y-xs">
+                                <label class="font-label-md text-label-md text-on-surface-variant">Departure Time</label>
+                                <div class="relative">
+                                    <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline">schedule</span>
+                                    <input class="w-full pl-10 pr-4 py-3 rounded-lg border border-outline focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none transition-all text-body-md" type="time" value="08:30"/>
+                                </div>
+                            </div>
+                            <div class="space-y-xs">
+                                <label class="font-label-md text-label-md text-on-surface-variant">Available Seats</label>
+                                <div class="flex items-center justify-between border border-outline rounded-lg px-4 py-3">
+                                    <button class="w-8 h-8 rounded-full bg-surface-container hover:bg-surface-variant transition-colors flex items-center justify-center" onclick="updateSeats(-1)">
+                                        <span class="material-symbols-outlined text-body-lg">remove</span>
+                                    </button>
+                                    <span class="font-headline-md text-primary transition-all duration-150" id="seatCount">3</span>
+                                    <button class="w-8 h-8 rounded-full bg-surface-container hover:bg-surface-variant transition-colors flex items-center justify-center" onclick="updateSeats(1)">
+                                        <span class="material-symbols-outlined text-body-lg">add</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Earnings card -->
+                        <div class="bg-primary-container p-lg rounded-xl shadow-[0px_4px_12px_rgba(26,43,76,0.08)] relative overflow-hidden">
+                            <div class="relative z-10">
+                                <h3 class="font-label-md text-label-md text-on-primary-container uppercase tracking-widest mb-1">Potential Weekly Earnings</h3>
+                                <div class="flex items-baseline gap-1">
+                                    <span class="text-headline-xl font-bold text-on-primary" id="potential-earnings">₹3,450</span>
+                                    <span class="text-on-primary-container font-body-md">/ week</span>
+                                </div>
+                                <p class="text-on-primary-container font-label-md mt-4 flex items-center gap-2">
+                                    <span class="material-symbols-outlined text-[16px]">info</span>
+                                    Based on ₹12/km average and full occupancy
+                                </p>
+                            </div>
+                            <div class="absolute -right-8 -bottom-8 w-32 h-32 bg-primary-fixed opacity-10 rounded-full blur-3xl"></div>
+                        </div>
+                        <!-- Submit -->
+                        <button onclick="publishRoute()" class="w-full bg-primary hover:bg-tertiary text-on-primary font-headline-md py-4 rounded-xl shadow-lg transition-all active:scale-[0.98] flex items-center justify-center gap-2">
+                            Publish My Route
+                            <span class="material-symbols-outlined">arrow_forward</span>
+                        </button>
+                    </div>
+                    <!-- Right: AI Route View -->
+                    <div class="flex flex-col gap-lg">
+                        <div class="bg-surface-container-lowest p-md rounded-xl border border-outline-variant flex flex-col h-full min-h-[350px]">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="flex items-center gap-2">
+                                    <span class="material-symbols-outlined text-secondary fill-1" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+                                    <h2 class="font-headline-md text-primary">AI Suggested Smart Route</h2>
+                                </div>
+                                <span class="bg-secondary/10 text-secondary px-3 py-1 rounded-full font-label-md text-label-md flex items-center gap-1 border border-secondary/20">
+                                    <span class="material-symbols-outlined text-[14px]">eco</span>
+                                    85% Efficient
+                                </span>
+                            </div>
+                            <!-- Map View Mockup -->
+                            <div class="flex-grow rounded-lg overflow-hidden relative border border-outline-variant bg-surface-container h-[350px]">
+                                <div class="absolute inset-0 w-full h-full bg-cover bg-center" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCx9VjfDbztnGsCFjXRUWOv9oGG24eNnbpTH6_wK4qrRaN3N8bu6it1rl0r8PhM02JmMOnjMXiZrq7Sq1xDRcIjReI45qL0hjBbJBcJMAd1SS_NSFRncp91hetPbgX5VZfZtkcbQA3M-qfsWFhwvXrxXcdsTWMXAHdHhzJipVxbNasEaymzCU3lNq-0P_it8FkEF4RvTxieg5n6LocohmA2hiO54v7ybOOmWeJJ89y6Z6vx6jMu2Qyj7cp53oDQSpUQnR5zDi9M-ZM')"></div>
+                                <div class="absolute inset-0 bg-gradient-to-t from-primary/10 to-transparent"></div>
+                                <!-- Recommendation Tooltip -->
+                                <div class="absolute top-4 left-4 right-4 flex flex-col gap-2">
+                                    <div class="bg-white/95 backdrop-blur-md p-3 rounded-lg shadow-md border border-white/20 flex items-center gap-3">
+                                        <div class="w-8 h-8 rounded-full bg-secondary flex items-center justify-center text-white">
+                                            <span class="material-symbols-outlined text-[18px]">navigation</span>
+                                        </div>
+                                        <div class="flex flex-col">
+                                            <span class="font-label-sm text-label-sm text-on-surface-variant">Recommended Detour</span>
+                                            <span class="font-label-md text-label-md text-primary font-bold">+4 mins for 2 extra passengers</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Riders overlay -->
+                                <div class="absolute bottom-1/4 right-1/4 animate-bounce">
+                                    <div class="bg-primary text-white p-2 rounded-lg shadow-xl text-label-sm flex items-center gap-2">
+                                        <div class="flex -space-x-2">
+                                            <div class="w-6 h-6 rounded-full border-2 border-primary overflow-hidden">
+                                                <img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAM0K5COiEGa0gPo1Wgx1IndDybCKUqB511xxwvbeD7fEq4ZYVCJpyHlVPAG2Z0YT9CTx3FXwQtnh-bSQwB5IdMsd66eMD71LD8qh9BvJI_kN44QvMojSlzBn8L31yVF8Y4uwbIUlOHa26OBqWXfr5fo23bG4_BHoO2hBGU4N_Pe5tMSULvotVLZeSPB8DgURmpasyDAc8E_R99sRT4UdEf620sPy4Lj2PJ-n52ca9mTCgWRQUpJCp6vcWKbl0q1RjmtisVsRfmiYA"/>
+                                            </div>
+                                            <div class="w-6 h-6 rounded-full border-2 border-primary overflow-hidden">
+                                                <img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBYTLWlusVGGt267B-f9Q_7m2_d4QSmWkoJOu6GT0XR_LKM-NLJvwIciBT291Rcdfr3PBLtLa56qOM5AVksL6xPVgTiEXtVWML8yGRkJEb00DDp6tpL4oJmOrTyqx6gE4-pzrcC57g4G2WxuM6ugoaHOd-a07gumD4M6rjO9N0C9aqgp_c8Zl1VaOyIEeDOYrsJCz76-aznBpX73lnNng5WYwFm5v6ZyHF3xqMFNuy42iGPAhb77N4Pq2Heo3lFfxFvTOff6TUWzfo"/>
+                                            </div>
+                                        </div>
+                                        <span class="font-bold">2 riders available here</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Metrics -->
+                            <div class="grid grid-cols-3 gap-md mt-4">
+                                <div class="p-3 bg-surface-container rounded-lg border border-outline-variant text-center">
+                                    <div class="text-on-surface-variant font-label-sm uppercase">Total Distance</div>
+                                    <div class="text-primary font-headline-md">24.5 km</div>
+                                </div>
+                                <div class="p-3 bg-surface-container rounded-lg border border-outline-variant text-center">
+                                    <div class="text-on-surface-variant font-label-sm uppercase">Duration</div>
+                                    <div class="text-primary font-headline-md">42 mins</div>
+                                </div>
+                                <div class="p-3 bg-surface-container rounded-lg border border-outline-variant text-center">
+                                    <div class="text-on-surface-variant font-label-sm uppercase">CO2 Saved</div>
+                                    <div class="text-secondary font-headline-md">4.2 kg</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+
+            <!-- Bottom Tab Bar -->
+            <nav class="fixed bottom-0 left-0 w-full z-50 rounded-t-xl bg-surface-container-lowest border-t border-outline-variant shadow-[0px_-4px_12px_rgba(26,43,76,0.08)] flex justify-around items-center h-[72px] px-sm md:hidden">
+                <a class="flex flex-col items-center justify-center text-on-surface-variant px-4 py-1.5 transition-all hover:text-primary" href="#dashboard">
+                    <span class="material-symbols-outlined">home</span>
+                    <span class="font-label-md text-label-md">Home</span>
+                </a>
+                <a class="flex flex-col items-center justify-center text-on-surface-variant px-4 py-1.5 transition-all hover:text-primary" href="#search">
+                    <span class="material-symbols-outlined">directions_car</span>
+                    <span class="font-label-md text-label-md">Rides</span>
+                </a>
+                <a class="flex flex-col items-center justify-center bg-primary-container text-on-primary-container rounded-xl px-4 py-1.5 transition-all" href="#offer">
+                    <span class="material-symbols-outlined fill-1" style="font-variation-settings: 'FILL' 1;">add_circle</span>
+                    <span class="font-label-md text-label-md">Offer</span>
+                </a>
+                <a class="flex flex-col items-center justify-center text-on-surface-variant px-4 py-1.5 transition-all hover:text-primary" href="#discovery">
+                    <span class="material-symbols-outlined">podcasts</span>
+                    <span class="font-label-md text-label-md">Driver</span>
+                </a>
+            </nav>
+        </div>
+                    </div>
+                    <div id="rider-action-content" class="hidden flex-col h-full w-full">
+<!-- Desktop Sidebar Nav -->
+        <nav class="hidden md:flex fixed top-0 left-0 h-full w-[280px] bg-surface-container-lowest border-r border-outline-variant p-lg flex-col gap-lg z-[60]">
+            <div class="font-headline-md text-headline-md font-bold text-primary mb-xl">CommuteFlow</div>
+            <div class="space-y-sm">
+                <a href="#dashboard" class="flex items-center gap-md px-md py-sm rounded-xl text-on-surface-variant hover:bg-surface-container cursor-pointer transition-all">
+                    <span class="material-symbols-outlined">home</span>
+                    <span class="font-semibold">Home</span>
+                </a>
+                <a href="#search" class="flex items-center gap-md px-md py-sm rounded-xl bg-primary text-on-primary shadow-lg cursor-pointer transition-all">
+                    <span class="material-symbols-outlined fill-1" style="font-variation-settings: 'FILL' 1;">directions_car</span>
+                    <span class="font-semibold">Find Rides</span>
+                </a>
+                <a href="#offer" class="flex items-center gap-md px-md py-sm rounded-xl text-on-surface-variant hover:bg-surface-container cursor-pointer transition-all">
+                    <span class="material-symbols-outlined">add_circle</span>
+                    <span class="font-semibold">Offer Ride</span>
+                </a>
+                <a href="#discovery" class="flex items-center gap-md px-md py-sm rounded-xl text-on-surface-variant hover:bg-surface-container cursor-pointer transition-all">
+                    <span class="material-symbols-outlined">podcasts</span>
+                    <span class="font-semibold">Driver Hub</span>
+                </a>
+                <a href="#onboarding" class="flex items-center gap-md px-md py-sm rounded-xl text-on-surface-variant hover:bg-surface-container cursor-pointer transition-all">
+                    <span class="material-symbols-outlined">logout</span>
+                    <span class="font-semibold">Logout</span>
+                </a>
+            </div>
+        </nav>
+
+        <div class="md:ml-[280px] pb-24 md:pb-6">
+            <!-- Header -->
+            <header class="w-full sticky top-0 z-50 bg-surface shadow-[0px_4px_12px_rgba(26,43,76,0.08)] flex justify-between items-center px-container-margin py-md">
+                <div class="flex items-center gap-sm">
+                    <div class="w-10 h-10 rounded-full overflow-hidden bg-surface-container-high border border-outline-variant">
+                        <img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAGh97m0leTIzZBpuhIxedMSsy_60ejUhzGZIBmHsMixQS1PA7Np2AzeXT0DwkPILMAtuqiOPuKF2y60tJhaleHBPSDGOY9DZ9awOrC1JyEDZvTiXloS2bhwc0QwCnq7faB3a-saIDMtDxMcNkYHj0hUyn1_TPmHr4gKvCAEY_b1n88okaYy8YTcxws42OYn6KfngmB33BG0MVkF014q5Ob8NTBlnDA8wnKctMtK0lXSUePhlJxr9qawHSNqVWjPHj-MDNeVaHGwH4"/>
+                    </div>
+                    <span class="font-headline-md text-headline-md font-bold text-primary">CommuteFlow</span>
+                </div>
+                <div class="flex items-center gap-md">
+                    <span class="material-symbols-outlined text-primary text-headline-md fill-1" style="font-variation-settings: 'FILL' 1;">verified</span>
+                </div>
+            </header>
+
+            <main class="max-w-[1200px] mx-auto pb-[100px] md:pb-lg">
+                <!-- Search & Map -->
+                <section class="px-container-margin py-lg">
+                    <div class="bg-surface-container-lowest rounded-xl overflow-hidden shadow-[0px_4px_16px_rgba(26,43,76,0.12)] mb-lg border border-outline-variant relative">
+                        <!-- Interactive Leaflet Map for Noida-Gurgaon Region -->
+                        <div id="search-map" class="h-[360px] w-full bg-surface-container relative z-0"></div>
+                        
+                        <!-- Floating Premium Editable Route Timeline Bar -->
+                        <div class="absolute top-4 left-4 z-20 bg-white/95 backdrop-blur-md p-4 rounded-xl shadow-lg border border-outline-variant flex items-center gap-3 w-[calc(100%-2rem)] max-w-sm">
+                            <div class="flex flex-col items-center justify-between h-14 py-1.5 absolute left-8 z-10 pointer-events-none">
+                                <span class="w-2.5 h-2.5 rounded-full bg-secondary"></span>
+                                <div class="w-[2px] flex-1 bg-outline-variant border-dashed border-l my-1"></div>
+                                <span class="material-symbols-outlined text-[16px] text-primary fill-1" style="font-variation-settings: 'FILL' 1;">location_on</span>
+                            </div>
+                            <div class="flex-1 pl-10 pr-2 flex flex-col gap-2 relative">
+                                <!-- Pickup Input with dropdown -->
+                                <div class="relative">
+                                    <input type="text" id="search-pickup" value="Sector 62, Noida" onclick="showSearchSuggestions(event, 'pickup')" oninput="handleSearchInput('pickup')" class="w-full bg-surface-container border border-outline-variant rounded-lg px-3 py-1.5 text-body-md font-semibold text-primary outline-none focus:border-secondary transition-all" placeholder="Enter Pickup..." autocomplete="off">
+                                    <div id="pickup-suggestions" class="absolute left-0 right-0 top-full mt-1 bg-white border border-outline-variant rounded-lg shadow-lg z-30 hidden overflow-hidden max-h-48 overflow-y-auto"></div>
+                                </div>
+                                <!-- Dropoff Input with dropdown -->
+                                <div class="relative">
+                                    <input type="text" id="search-dropoff" value="DLF Cyber City, Gurgaon" onclick="showSearchSuggestions(event, 'dropoff')" oninput="handleSearchInput('dropoff')" class="w-full bg-surface-container border border-outline-variant rounded-lg px-3 py-1.5 text-body-md font-semibold text-primary outline-none focus:border-primary transition-all" placeholder="Enter Dropoff..." autocomplete="off">
+                                    <div id="dropoff-suggestions" class="absolute left-0 right-0 top-full mt-1 bg-white border border-outline-variant rounded-lg shadow-lg z-30 hidden overflow-hidden max-h-48 overflow-y-auto"></div>
+                                </div>
+                            </div>
+                            <!-- Swap Button -->
+                            <button onclick="reverseSearchLocations()" class="w-10 h-10 rounded-full border border-outline-variant flex items-center justify-center text-primary bg-surface-container hover:bg-surface-container-high transition-all active:scale-90 shadow-sm">
+                                <span class="material-symbols-outlined text-[20px]">swap_vert</span>
+                            </button>
+                        </div>
+                        
+                        <!-- Map Loader Spinner -->
+                        <div id="search-map-loader" class="absolute inset-0 bg-white/40 z-[25] flex items-center justify-center pointer-events-none opacity-0 transition-opacity duration-300">
+                            <div class="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+                        </div>
+                    </div>
+                    <!-- Category Filters -->
+                    <div class="flex gap-sm overflow-x-auto pb-sm hide-scrollbar">
+                        <button onclick="filterCategory(this, 'all')" class="flex-shrink-0 px-md py-sm bg-primary text-on-primary rounded-full font-label-md flex items-center gap-xs shadow-sm transition-all duration-200">
+                            <span class="material-symbols-outlined text-[18px]">commute</span> All Rides
+                        </button>
+                        <button onclick="filterCategory(this, 'mini')" class="flex-shrink-0 px-md py-sm bg-surface-container-lowest border border-outline-variant rounded-full font-label-md text-on-surface-variant flex items-center gap-xs hover:bg-surface-container-low transition-all duration-200">
+                            <span class="material-symbols-outlined text-[18px]">commute</span> Mini
+                        </button>
+                        <button onclick="filterCategory(this, 'economy')" class="flex-shrink-0 px-md py-sm bg-surface-container-lowest border border-outline-variant rounded-full font-label-md text-on-surface-variant flex items-center gap-xs hover:bg-surface-container-low transition-all duration-200">
+                            <span class="material-symbols-outlined text-[18px]">eco</span> Economy
+                        </button>
+                        <button onclick="filterCategory(this, 'xl')" class="flex-shrink-0 px-md py-sm bg-surface-container-lowest border border-outline-variant rounded-full font-label-md text-on-surface-variant flex items-center gap-xs hover:bg-surface-container-low transition-all duration-200">
+                            <span class="material-symbols-outlined text-[18px]">group</span> XL
+                        </button>
+                    </div>
+                </section>
+
+                <!-- AI Optimized Banner -->
+                <section class="px-container-margin mb-lg">
+                    <div class="bg-gradient-to-r from-primary to-primary-container p-md rounded-xl shadow-lg border border-primary-container flex items-center justify-between">
+                        <div class="flex items-center gap-md">
+                            <div class="w-10 h-10 bg-secondary rounded-full flex items-center justify-center">
+                                <span class="material-symbols-outlined text-on-secondary fill-1" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+                            </div>
+                            <div>
+                                <p class="text-on-primary font-label-md mb-[2px]">AI Optimized Pickup</p>
+                                <p class="text-on-primary-container text-body-md font-semibold">3 min walk to Corner Bakery</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-on-primary-container text-label-sm uppercase tracking-wider">Drop Zone</p>
+                            <p class="text-secondary-fixed text-body-md font-bold">Gate 4, Main Hub</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Ride Results List -->
+                <section class="px-container-margin space-y-md" id="rides-list-container">
+                    <!-- Ride 1 -->
+                    <div class="ride-card bg-surface-container-lowest p-md rounded-xl border border-outline-variant shadow-[0px_4px_12px_rgba(26,43,76,0.08)] hover:border-primary transition-all duration-200 flex flex-col gap-md" data-category="mini">
+                        <div class="flex justify-between items-start">
+                            <div class="flex gap-md">
+                                <div class="relative">
+                                    <div class="w-14 h-14 rounded-full overflow-hidden border-2 border-secondary/20">
+                                        <img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAVcFQPNDecToZMpaBs1vOjJW5GEFjL-ljOi8Y6mZiCUQ-Pz-zzmvZFbZNeiDg9wfbDJm9iBmqTYPOpEdw5KDhVky2Asz3micLvUPosaJ4Mt5xwXY-dmfgLSO8hb5vf5bmxEXligQql1EacOqGRBfNtOZQH6txUq0c-FpFpl8Fsz0fEuguKvmVV5SxZZ3HhjaRi-mFbvS4dc5HWW0Gcdescbw4G3uIrGhzjavWyBjruaNBMraJmAHs4SCVnkmPIUnIP14KalPplYWw"/>
+                                    </div>
+                                    <div class="absolute -bottom-1 -right-1 bg-secondary rounded-full p-0.5 border-2 border-white">
+                                        <span class="material-symbols-outlined text-white text-[14px] fill-1" style="font-variation-settings: 'FILL' 1;">verified</span>
+                                    </div>
+                                </div>
+                                <div>
+                                    <h3 class="font-headline-md text-primary">Anjali Sharma</h3>
+                                    <p class="text-label-md text-on-surface-variant flex items-center gap-1 uppercase tracking-tight">
+                                        <span class="material-symbols-outlined text-[14px]">apartment</span> TechCorp • 4.9 <span class="material-symbols-outlined text-[14px] text-yellow-500 fill-1" style="font-variation-settings: 'FILL' 1;">star</span>
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-headline-md font-bold text-primary">₹320</p>
+                                <p class="text-label-sm text-outline">₹10/km • Mini</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between border-t border-outline-variant/30 pt-md">
+                            <div class="flex gap-lg">
+                                <div class="flex flex-col items-center">
+                                    <p class="text-label-sm text-outline">Leaves</p>
+                                    <p class="text-body-md font-bold text-on-surface">08:15 AM</p>
+                                </div>
+                                <div class="flex flex-col items-center">
+                                    <p class="text-label-sm text-outline">Arrival</p>
+                                    <p class="text-body-md font-bold text-on-surface">09:05 AM</p>
+                                </div>
+                                <div class="flex flex-col items-center">
+                                    <p class="text-label-sm text-outline">Seats</p>
+                                    <div class="flex gap-[2px]">
+                                        <span class="material-symbols-outlined text-secondary text-[18px] fill-1" style="font-variation-settings: 'FILL' 1;">person</span>
+                                        <span class="material-symbols-outlined text-outline-variant text-[18px]">person</span>
+                                        <span class="material-symbols-outlined text-outline-variant text-[18px]">person</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <button onclick="promptBooking('Anjali Sharma', 'Maruti Swift', 'DL-2C-AE-8711', '4.9', 'https://lh3.googleusercontent.com/aida-public/AB6AXuAVcFQPNDecToZMpaBs1vOjJW5GEFjL-ljOi8Y6mZiCUQ-Pz-zzmvZFbZNeiDg9wfbDJm9iBmqTYPOpEdw5KDhVky2Asz3micLvUPosaJ4Mt5xwXY-dmfgLSO8hb5vf5bmxEXligQql1EacOqGRBfNtOZQH6txUq0c-FpFpl8Fsz0fEuguKvmVV5SxZZ3HhjaRi-mFbvS4dc5HWW0Gcdescbw4G3uIrGhzjavWyBjruaNBMraJmAHs4SCVnkmPIUnIP14KalPplYWw', '₹320')" class="bg-primary hover:bg-tertiary text-on-primary px-lg py-sm rounded-lg font-label-md transition-all active:scale-95">Book</button>
+                        </div>
+                    </div>
+
+                    <!-- Ride 2 -->
+                    <div class="ride-card bg-surface-container-lowest p-md rounded-xl border border-outline-variant shadow-[0px_4px_12px_rgba(26,43,76,0.08)] hover:border-primary transition-all duration-200 flex flex-col gap-md" data-category="economy">
+                        <div class="flex justify-between items-start">
+                            <div class="flex gap-md">
+                                <div class="relative">
+                                    <div class="w-14 h-14 rounded-full overflow-hidden border-2 border-secondary/20">
+                                        <img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBQ0CKMDUK7Ld6hnXow7z_WzPMqX2QI5xttiJ0cRgu1a0Iyt89RBsa6uDtNVpKI80c_nwu8M1hjOM0R_4PyaIJeDGnEw0FBzD4bdNrminuGrGygEQcKok0gS6fRUvLqB9Pz0RvXkfgiTZRSgtw-dNQtFoJdY5tnlG9xE7MM3Q6iiQoOLAqtFO1FtlC_E_DcljZV2WR-SQcXsr1Y-zkaceuSlJOUSEbA0AJqRhIlbUkhlvBS-lPHgRz5DqOpLNWoBy_DUeSFKECZit8"/>
+                                    </div>
+                                    <div class="absolute -bottom-1 -right-1 bg-secondary rounded-full p-0.5 border-2 border-white">
+                                        <span class="material-symbols-outlined text-white text-[14px] fill-1" style="font-variation-settings: 'FILL' 1;">verified</span>
+                                    </div>
+                                </div>
+                                <div>
+                                    <h3 class="font-headline-md text-primary">Rohan Mehta</h3>
+                                    <p class="text-label-md text-on-surface-variant flex items-center gap-1 uppercase tracking-tight">
+                                        <span class="material-symbols-outlined text-[14px]">apartment</span> FinGlobal • 4.8 <span class="material-symbols-outlined text-[14px] text-yellow-500 fill-1" style="font-variation-settings: 'FILL' 1;">star</span>
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-headline-md font-bold text-primary">₹352</p>
+                                <p class="text-label-sm text-outline">₹11/km • Economy</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between border-t border-outline-variant/30 pt-md">
+                            <div class="flex gap-lg">
+                                <div class="flex flex-col items-center">
+                                    <p class="text-label-sm text-outline">Leaves</p>
+                                    <p class="text-body-md font-bold text-on-surface">08:30 AM</p>
+                                </div>
+                                <div class="flex flex-col items-center">
+                                    <p class="text-label-sm text-outline">Arrival</p>
+                                    <p class="text-body-md font-bold text-on-surface">09:15 AM</p>
+                                </div>
+                                <div class="flex flex-col items-center">
+                                    <p class="text-label-sm text-outline">Seats</p>
+                                    <div class="flex gap-[2px]">
+                                        <span class="material-symbols-outlined text-secondary text-[18px] fill-1" style="font-variation-settings: 'FILL' 1;">person</span>
+                                        <span class="material-symbols-outlined text-secondary text-[18px] fill-1" style="font-variation-settings: 'FILL' 1;">person</span>
+                                        <span class="material-symbols-outlined text-outline-variant text-[18px]">person</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <button onclick="promptBooking('Rohan Mehta', 'Honda City', 'UP-16-BD-2311', '4.8', 'https://lh3.googleusercontent.com/aida-public/AB6AXuBQ0CKMDUK7Ld6hnXow7z_WzPMqX2QI5xttiJ0cRgu1a0Iyt89RBsa6uDtNVpKI80c_nwu8M1hjOM0R_4PyaIJeDGnEw0FBzD4bdNrminuGrGygEQcKok0gS6fRUvLqB9Pz0RvXkfgiTZRSgtw-dNQtFoJdY5tnlG9xE7MM3Q6iiQoOLAqtFO1FtlC_E_DcljZV2WR-SQcXsr1Y-zkaceuSlJOUSEbA0AJqRhIlbUkhlvBS-lPHgRz5DqOpLNWoBy_DUeSFKECZit8', '₹352')" class="bg-primary hover:bg-tertiary text-on-primary px-lg py-sm rounded-lg font-label-md transition-all active:scale-95">Book</button>
+                        </div>
+                    </div>
+
+                    <!-- Ride 3 -->
+                    <div class="ride-card bg-surface-container-lowest p-md rounded-xl border border-secondary shadow-[0px_4px_12px_rgba(46,204,113,0.1)] relative overflow-hidden flex flex-col gap-md" data-category="xl">
+                        <div class="absolute top-0 right-0 bg-secondary px-sm py-1 rounded-bl-lg">
+                            <span class="text-[10px] text-white font-bold flex items-center gap-1">
+                                <span class="material-symbols-outlined text-[12px] fill-1" style="font-variation-settings: 'FILL' 1;">bolt</span> EV RIDE
+                            </span>
+                        </div>
+                        <div class="flex justify-between items-start">
+                            <div class="flex gap-md">
+                                <div class="relative">
+                                    <div class="w-14 h-14 rounded-full overflow-hidden border-2 border-secondary">
+                                        <img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAMqxPxDyNWwT-8Jy27qPZ9uHNMegDXQrlvBB7F61oexQwMUHlCtV0OYnoDpPAgm8nASeuFxdUGY_foTkpEgAMrpydB3I1PxZ19nCD1pcYZ-RlwQ4XAedNZvAa6jyvmRll2XFEcvQieKgDkF6tLRoI2nMjMS2kgilH3J_Ug_bkD0Y4cm9rMZPSJkZyzHqvP32Iza9BJ664FXCF_pLXQbH-OrcB9FB1c4lwHswZswBmeyEu-DRS--gF_pqbRyztBGW1Y3Igyn6E5P9s"/>
+                                    </div>
+                                    <div class="absolute -bottom-1 -right-1 bg-secondary rounded-full p-0.5 border-2 border-white">
+                                        <span class="material-symbols-outlined text-white text-[14px] fill-1" style="font-variation-settings: 'FILL' 1;">verified</span>
+                                    </div>
+                                </div>
+                                <div>
+                                    <h3 class="font-headline-md text-primary">Sanya Iyer</h3>
+                                    <p class="text-label-md text-on-surface-variant flex items-center gap-1 uppercase tracking-tight">
+                                        <span class="material-symbols-outlined text-[14px]">apartment</span> InnovateX • 5.0 <span class="material-symbols-outlined text-[14px] text-yellow-500 fill-1" style="font-variation-settings: 'FILL' 1;">star</span>
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-headline-md font-bold text-primary">₹448</p>
+                                <p class="text-label-sm text-outline">₹14/km • XL</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between border-t border-outline-variant/30 pt-md">
+                            <div class="flex gap-lg">
+                                <div class="flex flex-col items-center">
+                                    <p class="text-label-sm text-outline">Leaves</p>
+                                    <p class="text-body-md font-bold text-on-surface">08:45 AM</p>
+                                </div>
+                                <div class="flex flex-col items-center">
+                                    <p class="text-label-sm text-outline">Arrival</p>
+                                    <p class="text-body-md font-bold text-on-surface">09:30 AM</p>
+                                </div>
+                                <div class="flex flex-col items-center">
+                                    <p class="text-label-sm text-outline">Seats</p>
+                                    <div class="flex gap-[2px]">
+                                        <span class="material-symbols-outlined text-outline-variant text-[18px]">person</span>
+                                        <span class="material-symbols-outlined text-outline-variant text-[18px]">person</span>
+                                        <span class="material-symbols-outlined text-outline-variant text-[18px]">person</span>
+                                        <span class="material-symbols-outlined text-outline-variant text-[18px]">person</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <button onclick="promptBooking('Sanya Iyer', 'Tesla Model Y', 'MH-12-EV-4409', '5.0', 'https://lh3.googleusercontent.com/aida-public/AB6AXuAMqxPxDyNWwT-8Jy27qPZ9uHNMegDXQrlvBB7F61oexQwMUHlCtV0OYnoDpPAgm8nASeuFxdUGY_foTkpEgAMrpydB3I1PxZ19nCD1pcYZ-RlwQ4XAedNZvAa6jyvmRll2XFEcvQieKgDkF6tLRoI2nMjMS2kgilH3J_Ug_bkD0Y4cm9rMZPSJkZyzHqvP32Iza9BJ664FXCF_pLXQbH-OrcB9FB1c4lwHswZswBmeyEu-DRS--gF_pqbRyztBGW1Y3Igyn6E5P9s', '₹448')" class="bg-secondary hover:opacity-90 text-on-secondary px-lg py-sm rounded-lg font-label-md transition-all active:scale-95 shadow-md">Join Carpool</button>
+                        </div>
+                    </div>
+                </section>
+            </main>
+
+            <!-- Bottom Tab Bar -->
+            <nav class="fixed bottom-0 left-0 w-full z-50 rounded-t-xl bg-surface-container-lowest border-t border-outline-variant shadow-[0px_-4px_12px_rgba(26,43,76,0.08)] flex justify-around items-center h-[72px] px-sm md:hidden">
+                <a class="flex flex-col items-center justify-center text-on-surface-variant px-4 py-1.5 transition-all hover:text-primary" href="#dashboard">
+                    <span class="material-symbols-outlined">home</span>
+                    <span class="font-label-md text-label-md">Home</span>
+                </a>
+                <a class="flex flex-col items-center justify-center bg-primary-container text-on-primary-container rounded-xl px-4 py-1.5 transition-all" href="#search">
+                    <span class="material-symbols-outlined fill-1" style="font-variation-settings: 'FILL' 1;">directions_car</span>
+                    <span class="font-label-md text-label-md">Rides</span>
+                </a>
+                <a class="flex flex-col items-center justify-center text-on-surface-variant px-4 py-1.5 transition-all hover:text-primary" href="#offer">
+                    <span class="material-symbols-outlined">add_circle</span>
+                    <span class="font-label-md text-label-md">Offer</span>
+                </a>
+                <a class="flex flex-col items-center justify-center text-on-surface-variant px-4 py-1.5 transition-all hover:text-primary" href="#discovery">
+                    <span class="material-symbols-outlined">podcasts</span>
+                    <span class="font-label-md text-label-md">Driver</span>
+                </a>
+            </nav>
+        </div>
+                    </div>
+                </div>
+
+                <!-- Tab 2: Profile Details Frame -->
+                <div id="profile-frame-details" class="hidden flex-col gap-lg">
+                    <div class="bg-surface-container-lowest p-lg rounded-xl border border-outline-variant shadow-sm flex items-center gap-lg">
+                        <div class="w-20 h-20 rounded-full bg-surface-container-high overflow-hidden border-2 border-primary/20">
+                            <img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBw24NKav1IVo7c2clCArSuXvRsZ0QkjFy7NNoUZeu6vKGM_minvZL75tJMtGBPTaH4yg45aCD9hYqTnIyvxrlTmYbBSmjh1E5f_0FwfgLJZGRRM5rS7bYvCDpFd3S0v-DFbdEaaB3bQzOPHFVeQ0FkdzKdc_mN_-WtGMqvoMmROKyPbva4M-wojnq1OnHMV3QoOj714GMNPMId10NagKpPm9o76V26PyCirootNy5er6JdoqpbBLrhRRJ5h5ZCBEOukqEXavokex8"/>
+                        </div>
+                        <div class="flex-1">
+                            <h2 class="font-headline-lg text-primary">Sanya Iyer</h2>
+                            <p class="font-body-md text-on-surface-variant flex items-center gap-2">
+                                <span class="material-symbols-outlined text-[16px]">corporate_fare</span>
+                                CommuteFlow Corp HQ
+                            </p>
+                        </div>
+                        <div class="hidden sm:block px-3 py-1 bg-secondary/10 text-secondary rounded-full border border-secondary/20">
+                            <span class="font-label-md flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">verified</span> Verified</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-surface-container-lowest p-lg rounded-xl border border-outline-variant shadow-sm flex flex-col gap-md">
+                        <h3 class="font-headline-md text-primary">Role Settings</h3>
+                        <p class="font-body-md text-on-surface-variant">Switch your role depending on whether you're driving or looking for a carpool today.</p>
+                        <div class="flex items-center gap-4 mt-2">
+                            <button id="btn-switch-driver" onclick="loginAs('driver')" class="flex-1 py-3 rounded-lg border-2 border-primary text-primary font-headline-md transition-colors hover:bg-primary/5 flex items-center justify-center gap-2">
+                                <span class="material-symbols-outlined">directions_car</span>
+                                Driver Mode
+                            </button>
+                            <button id="btn-switch-rider" onclick="loginAs('rider')" class="flex-1 py-3 rounded-lg border-2 border-outline-variant text-on-surface-variant font-headline-md transition-colors hover:bg-surface-container flex items-center justify-center gap-2">
+                                <span class="material-symbols-outlined">person</span>
+                                Rider Mode
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    </div> <!-- #app-container -->
+
+    <!-- ==============================================
+         SPA ROUTER & APP INTERACTIVE SCRIPTS
+         ============================================== -->
+    <script>
+        // Router Mappings
+        const routes = {
+            'onboarding': 'screen-onboarding',
+            'dashboard': 'screen-dashboard',
+            'discovery': 'screen-discovery',
+            'tracking': 'screen-tracking',
+            'profile': 'screen-profile'
+        };
+
+        let currentUserRole = localStorage.getItem('userRole') || null;
+        let selectedDriver = {};
+
+        function loginAs(role) {
+            currentUserRole = role;
+            localStorage.setItem('userRole', role);
+            updateNavigationVisibility();
+            window.location.hash = '#profile';
+        }
+
+        function logout() {
+            currentUserRole = null;
+            localStorage.removeItem('userRole');
+            window.location.hash = '#onboarding';
+        }
+
+        function switchProfileTab(tab) {
+            const actionBtn = document.getElementById('profile-tab-action');
+            const detailsBtn = document.getElementById('profile-tab-details');
+            const actionFrame = document.getElementById('profile-frame-action');
+            const detailsFrame = document.getElementById('profile-frame-details');
+
+            if (tab === 'action') {
+                actionBtn.className = "flex-1 py-3 font-headline-md text-primary border-b-2 border-primary transition-colors";
+                detailsBtn.className = "flex-1 py-3 font-headline-md text-on-surface-variant border-b-2 border-transparent hover:text-primary transition-colors";
+                actionFrame.classList.remove('hidden');
+                actionFrame.classList.add('flex');
+                detailsFrame.classList.add('hidden');
+                detailsFrame.classList.remove('flex');
+                if (typeof searchMap !== 'undefined' && searchMap) {
+                    setTimeout(() => searchMap.invalidateSize(), 50);
+                }
+            } else {
+                detailsBtn.className = "flex-1 py-3 font-headline-md text-primary border-b-2 border-primary transition-colors";
+                actionBtn.className = "flex-1 py-3 font-headline-md text-on-surface-variant border-b-2 border-transparent hover:text-primary transition-colors";
+                detailsFrame.classList.remove('hidden');
+                detailsFrame.classList.add('flex');
+                actionFrame.classList.add('hidden');
+                actionFrame.classList.remove('flex');
+            }
+        }
+
+        function updateNavigationVisibility() {
+            // Update Profile UI specifically
+            const tabActionBtn = document.getElementById('profile-tab-action');
+            const driverContent = document.getElementById('driver-action-content');
+            const riderContent = document.getElementById('rider-action-content');
+            const btnDriver = document.getElementById('btn-switch-driver');
+            const btnRider = document.getElementById('btn-switch-rider');
+
+            if (currentUserRole === 'driver') {
+                if (tabActionBtn) tabActionBtn.innerText = 'Offer a Ride';
+                if (driverContent) { driverContent.classList.remove('hidden'); driverContent.classList.add('flex'); }
+                if (riderContent) { riderContent.classList.remove('flex'); riderContent.classList.add('hidden'); }
+                if (btnDriver) btnDriver.className = "flex-1 py-3 rounded-lg border-2 border-primary text-primary font-headline-md transition-colors hover:bg-primary/5 flex items-center justify-center gap-2";
+                if (btnRider) btnRider.className = "flex-1 py-3 rounded-lg border-2 border-outline-variant text-on-surface-variant font-headline-md transition-colors hover:bg-surface-container flex items-center justify-center gap-2";
+                
+                // For the AI generated map on driver side
+                if (typeof map !== 'undefined' && map) {
+                    setTimeout(() => map.invalidateSize(), 50);
+                }
+            } else if (currentUserRole === 'rider') {
+                if (tabActionBtn) tabActionBtn.innerText = 'Find a Ride';
+                if (riderContent) { riderContent.classList.remove('hidden'); riderContent.classList.add('flex'); }
+                if (driverContent) { driverContent.classList.remove('flex'); driverContent.classList.add('hidden'); }
+                if (btnRider) btnRider.className = "flex-1 py-3 rounded-lg border-2 border-primary text-primary font-headline-md transition-colors hover:bg-primary/5 flex items-center justify-center gap-2";
+                if (btnDriver) btnDriver.className = "flex-1 py-3 rounded-lg border-2 border-outline-variant text-on-surface-variant font-headline-md transition-colors hover:bg-surface-container flex items-center justify-center gap-2";
+                
+                if (typeof searchMap !== 'undefined' && searchMap) {
+                    setTimeout(() => searchMap.invalidateSize(), 50);
+                }
+            }
+            
+            // Rebuild Bottom Nav
+            const bottomNavs = document.querySelectorAll('nav.fixed.bottom-0');
+            bottomNavs.forEach(nav => {
+                let html = `
+                    <a class="flex flex-col items-center justify-center text-on-surface-variant px-4 py-1.5 transition-all hover:text-primary" href="#dashboard">
+                        <span class="material-symbols-outlined">home</span>
+                        <span class="font-label-md text-label-md">Home</span>
+                    </a>
+                `;
+                if (currentUserRole === 'driver') {
+                    html += `
+                    <a class="flex flex-col items-center justify-center text-on-surface-variant px-4 py-1.5 transition-all hover:text-primary" href="#discovery">
+                        <span class="material-symbols-outlined">podcasts</span>
+                        <span class="font-label-md text-label-md">Driver Hub</span>
+                    </a>`;
+                }
+                html += `
+                    <a class="flex flex-col items-center justify-center text-on-surface-variant px-4 py-1.5 transition-all hover:text-primary" href="#profile">
+                        <span class="material-symbols-outlined">person</span>
+                        <span class="font-label-md text-label-md">Profile</span>
+                    </a>
+                `;
+                nav.innerHTML = html;
+            });
+
+            // Rebuild Sidebar Navs
+            const sidebarNavs = document.querySelectorAll('nav.hidden.md\\:flex');
+            sidebarNavs.forEach(nav => {
+                let html = `<div class="font-headline-md text-headline-md font-bold text-primary mb-xl">CommuteFlow</div>
+                            <div class="space-y-sm">
+                                <a href="#dashboard" class="flex items-center gap-md px-md py-sm rounded-xl text-on-surface-variant hover:bg-surface-container cursor-pointer transition-all">
+                                    <span class="material-symbols-outlined">home</span>
+                                    <span class="font-semibold">Home</span>
+                                </a>`;
+                if (currentUserRole === 'driver') {
+                    html += `
+                                <a href="#discovery" class="flex items-center gap-md px-md py-sm rounded-xl text-on-surface-variant hover:bg-surface-container cursor-pointer transition-all">
+                                    <span class="material-symbols-outlined">podcasts</span>
+                                    <span class="font-semibold">Driver Hub</span>
+                                </a>`;
+                }
+                html += `
+                                <a href="#profile" class="flex items-center gap-md px-md py-sm rounded-xl text-on-surface-variant hover:bg-surface-container cursor-pointer transition-all">
+                                    <span class="material-symbols-outlined">person</span>
+                                    <span class="font-semibold">Profile</span>
+                                </a>
+                                <a onclick="logout()" class="flex items-center gap-md px-md py-sm rounded-xl text-on-surface-variant hover:bg-surface-container cursor-pointer transition-all">
+                                    <span class="material-symbols-outlined">logout</span>
+                                    <span class="font-semibold">Logout</span>
+                                </a>
+                            </div>`;
+                nav.innerHTML = html;
+            });
+        }
+
+        function router(skipInit = false) {
+            let hash = window.location.hash.substring(1) || 'onboarding';
+
+            // Route Guards
+            if (!currentUserRole && hash !== 'onboarding') {
+                window.location.hash = '#onboarding';
+                return;
+            }
+            if (currentUserRole === 'rider' && (hash === 'offer' || hash === 'discovery')) {
+                window.location.hash = '#profile';
+                return;
+            }
+            if (currentUserRole === 'driver' && hash === 'search') {
+                window.location.hash = '#profile';
+                return;
+            }
+            
+            // Auto redirect if hitting onboarding while logged in
+            if (currentUserRole && hash === 'onboarding') {
+                window.location.hash = '#dashboard';
+                return;
+            }
+
+            const activeScreenId = routes[hash] || 'screen-onboarding';
+            
+            // Hide all screens
+            document.querySelectorAll('.route-view').forEach(view => {
+                view.classList.remove('active');
+            });
+
+            // Show active screen
+            const activeScreen = document.getElementById(activeScreenId);
+            if (activeScreen) {
+                activeScreen.classList.add('active');
+            }
+
+            // Sync navigation active state on Desktop sidebar
+            document.querySelectorAll('nav a').forEach(a => {
+                const linkHash = a.getAttribute('href');
+                if (linkHash === '#' + hash) {
+                    a.className = "flex items-center gap-md px-md py-sm rounded-xl bg-primary text-on-primary shadow-lg cursor-pointer transition-all";
+                    const icon = a.querySelector('.material-symbols-outlined');
+                    if (icon) icon.classList.add('fill-1');
+                } else {
+                    a.className = "flex items-center gap-md px-md py-sm rounded-xl text-on-surface-variant hover:bg-surface-container cursor-pointer transition-all";
+                    const icon = a.querySelector('.material-symbols-outlined');
+                    if (icon) icon.classList.remove('fill-1');
+                }
+            });
+
+            // Sync bottom bar navigation active state
+            document.querySelectorAll('nav[class*="fixed"] a').forEach(a => {
+                const linkHash = a.getAttribute('href');
+                if (linkHash === '#' + hash) {
+                    a.className = "flex flex-col items-center justify-center bg-primary-container text-on-primary-container rounded-xl px-4 py-1.5 transition-all";
+                    const icon = a.querySelector('.material-symbols-outlined');
+                    if (icon) icon.classList.add('fill-1');
+                } else {
+                    a.className = "flex flex-col items-center justify-center text-on-surface-variant px-4 py-1.5 transition-all hover:text-primary";
+                    const icon = a.querySelector('.material-symbols-outlined');
+                    if (icon) icon.classList.remove('fill-1');
+                }
+            });
+
+            window.scrollTo(0, 0);
+
+            // Live car simulation triggering
+            if (hash === 'tracking') {
+                startCarAnimation();
+            } else {
+                stopCarAnimation();
+            }
+
+            // Search map triggering
+            if (hash === 'search') {
+                initSearchMap();
+            }
+        }
+
+        window.addEventListener('hashchange', () => router(false));
+        window.addEventListener('load', () => {
+            if (currentUserRole) updateNavigationVisibility();
+            router(false);
+        });
+
+        // Core Interactive Scripts
+
+        // Toast Alert utility
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `fixed top-4 right-4 z-[100] px-md py-3 rounded-xl shadow-lg flex items-center gap-2 transform translate-y-[-20px] opacity-0 transition-all duration-300 font-label-md ${
+                type === 'success' ? 'bg-secondary text-white border border-secondary-fixed' : 
+                type === 'primary' ? 'bg-primary text-white border border-primary-fixed-dim' : 'bg-primary text-white border border-outline-variant'
+            }`;
+            toast.innerHTML = `
+                <span class="material-symbols-outlined">${type === 'success' ? 'check_circle' : 'info'}</span>
+                <span>${message}</span>
+            `;
+            document.body.appendChild(toast);
+            
+            // Trigger reflow
+            toast.offsetHeight;
+            
+            // Show
+            toast.classList.remove('translate-y-[-20px]', 'opacity-0');
+            
+            // Fade out and remove
+            setTimeout(() => {
+                toast.classList.add('translate-y-[-20px]', 'opacity-0');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // Notification center click
+        function showNotificationToast() {
+            showToast("Notifications: You have a clean green optimized route today!", "success");
+        }
+
+        // Match Request interaction
+        function handleMatchBtn(button, name) {
+            if (button.innerText === 'Match') {
+                button.innerText = 'Requested';
+                button.className = "w-full text-on-surface border border-outline-variant py-2 rounded-lg text-label-md font-bold bg-surface-container opacity-60 cursor-not-allowed";
+                showToast(`Request sent to ${name}!`, "success");
+            }
+        }
+
+        // Verify Scan Simulation
+        function simulateScan() {
+            const feedback = document.getElementById('scan-feedback');
+            feedback.classList.remove('hidden');
+            showToast("Scanner initialized...", "info");
+            
+            setTimeout(() => {
+                feedback.innerHTML = `
+                    <span class="material-symbols-outlined text-secondary fill-1" style="font-variation-settings: 'FILL' 1;">verified</span>
+                    <span class="font-body-md text-body-md text-on-secondary-container font-semibold">Corporate ID Verified! Welcome Rahul.</span>
+                `;
+                showToast("Verification successful!", "success");
+                
+                setTimeout(() => {
+                    window.location.hash = '#dashboard';
+                }, 1000);
+            }, 1800);
+        }
+
+        // Verify Email Form Submit
+        function handleEmailSubmit(event) {
+            event.preventDefault();
+            const email = document.getElementById('work-email').value;
+            showToast(`Verification code sent to ${email}`, "success");
+            setTimeout(() => {
+                window.location.hash = '#dashboard';
+            }, 1000);
+        }
+
+        // Seat counter logic in Offer Ride
+        function updateSeats(delta) {
+            const countElem = document.getElementById('seatCount');
+            const potentialEarnings = document.getElementById('potential-earnings');
+            let current = parseInt(countElem.innerText);
+            let next = current + delta;
+            
+            if (next >= 1 && next <= 6) {
+                countElem.innerText = next;
+                
+                // Math scaling for weekly earnings
+                const baseWeekly = 1150;
+                potentialEarnings.innerText = `₹${(baseWeekly * next).toLocaleString('en-IN')}`;
+                
+                // Seat scale bounce animation
+                countElem.classList.add('scale-125', 'text-secondary');
+                setTimeout(() => {
+                    countElem.classList.remove('scale-125', 'text-secondary');
+                }, 200);
+            }
+        }
+
+        // Publish Route logic
+        function publishRoute() {
+            showToast("Route published successfully!", "success");
+            setTimeout(() => {
+                window.location.hash = '#discovery';
+            }, 1000);
+        }
+
+        // Online Driver Broadcasting
+        function handleBroadcast(btn) {
+            const originalContent = btn.innerHTML;
+            btn.innerHTML = '<span class="material-symbols-outlined animate-spin">sync</span> Broadcasting...';
+            btn.classList.add('opacity-80');
+            btn.disabled = true;
+
+            setTimeout(() => {
+                btn.innerHTML = '<span class="material-symbols-outlined">check_circle</span> Broadcast Sent!';
+                btn.classList.replace('bg-secondary', 'bg-primary');
+                showToast("Broadcast shared to 14 waiting professionals!", "success");
+                
+                setTimeout(() => {
+                    btn.innerHTML = originalContent;
+                    btn.classList.replace('bg-primary', 'bg-secondary');
+                    btn.classList.remove('opacity-80');
+                    btn.disabled = false;
+                }, 3000);
+            }, 1800);
+        }
+
+        // Invite professional to Ride
+        function inviteDriverToRide(button, name) {
+            button.innerHTML = '<span class="material-symbols-outlined">check_circle</span> Invited';
+            button.className = "w-full bg-surface-container text-on-surface py-3 rounded-lg font-label-md flex items-center justify-center gap-2 opacity-60 cursor-not-allowed";
+            showToast(`Ride invitation sent to ${name}`, "success");
+        }
+
+        // Booking Modal and flows
+        function promptBooking(driverName, vehicleName, plate, rating, driverImg, price) {
+            selectedDriver = { driverName, vehicleName, plate, rating, driverImg, price };
+            
+            document.getElementById('modal-driver-name').innerText = driverName;
+            document.getElementById('modal-vehicle').innerText = `${vehicleName} • ${plate}`;
+            document.getElementById('modal-driver-img').src = driverImg;
+            document.getElementById('modal-price').innerText = price;
+            
+            const modal = document.getElementById('booking-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            
+            // Reflow
+            modal.offsetHeight;
+            modal.classList.remove('opacity-0');
+            modal.querySelector('div').classList.remove('translate-y-4');
+        }
+
+        function closeBookingModal() {
+            const modal = document.getElementById('booking-modal');
+            modal.classList.add('opacity-0');
+            modal.querySelector('div').classList.add('translate-y-4');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }, 300);
+        }
+
+        function confirmBooking() {
+            closeBookingModal();
+            showToast(`Ride booked with ${selectedDriver.driverName}!`, "success");
+            
+            // Update live tracking layout values
+            document.getElementById('tracking-driver-name').innerText = selectedDriver.driverName;
+            document.getElementById('tracking-vehicle').innerHTML = `${selectedDriver.vehicleName} • <span class="font-bold">${selectedDriver.plate}</span>`;
+            document.getElementById('tracking-driver-img').src = selectedDriver.driverImg;
+            
+            setTimeout(() => {
+                window.location.hash = '#tracking';
+            }, 1000);
+        }
+
+        function bookUpcomingRide(driverName, vehicleName, plate, rating, driverImg) {
+            // Preset upcoming ride booking tracking
+            selectedDriver = { driverName, vehicleName, plate, rating, driverImg, price: "" };
+            
+            document.getElementById('tracking-driver-name').innerText = driverName;
+            document.getElementById('tracking-vehicle').innerHTML = `${vehicleName} • <span class="font-bold">${plate}</span>`;
+            document.getElementById('tracking-driver-img').src = driverImg;
+            
+            window.location.hash = '#tracking';
+        }
+
+        // Live Real Map Leaflet variables
+        let mapInstance = null;
+        let driverMarker = null;
+        let customerMarker = null;
+        let meetingPointMarker = null;
+        let driverRouteLine = null;
+        let customerRouteLine = null;
+        let isAutoCentering = true;
+
+        // Search Map Leaflet variables
+        let searchMapInstance = null;
+        let searchPickupMarker = null;
+        let searchDropoffMarker = null;
+        let searchRouteLine = null;
+
+        let currentPickupCoords = [28.6219, 77.3639];
+        let currentDropoffCoords = [28.4986, 77.0878];
+
+        const predefinedLocations = [
+            { name: "Sector 62, Noida", coords: [28.6219, 77.3639], type: "subway" },
+            { name: "DLF Cyber City, Gurgaon", coords: [28.4986, 77.0878], type: "apartment" },
+            { name: "Connaught Place, New Delhi", coords: [28.6304, 77.2177], type: "location_city" },
+            { name: "Indira Gandhi Airport (IGI), Delhi", coords: [28.5562, 77.1000], type: "flight" },
+            { name: "Noida Electronic City", coords: [28.6272, 77.3725], type: "train" },
+            { name: "Akshardham Temple, Delhi", coords: [28.6127, 77.2773], type: "account_balance" },
+            { name: "Qutub Minar, Delhi", coords: [28.5244, 77.1855], type: "castle" }
+        ];
+        
+        const meetingPointCoords = [12.9385, 77.6915]; // Ecospace Outer Ring Road, Bengaluru
+        const driverStartCoords = [12.9279, 77.6802]; // Bellandur Outer Ring Road Start
+        const customerStartCoords = [12.9356, 77.6890]; // Customer's starting point (Rahul)
+
+        const driverPathCoords = [
+            [12.927921, 77.68019],
+            [12.928091, 77.680561],
+            [12.928188, 77.680761],
+            [12.928205, 77.680797],
+            [12.928339, 77.681075],
+            [12.928391, 77.68118],
+            [12.928497, 77.681395],
+            [12.928665, 77.681753],
+            [12.928718, 77.681863],
+            [12.928792, 77.682016],
+            [12.929271, 77.683012],
+            [12.929335, 77.683132],
+            [12.929456, 77.683394],
+            [12.929567, 77.683621],
+            [12.929583, 77.683656],
+            [12.929888, 77.684291],
+            [12.929918, 77.684346],
+            [12.930007, 77.684524],
+            [12.930015, 77.68454],
+            [12.930287, 77.685051],
+            [12.930471, 77.685341],
+            [12.930659, 77.685571],
+            [12.930701, 77.685621],
+            [12.930882, 77.685821],
+            [12.930992, 77.685941],
+            [12.931249, 77.686217],
+            [12.931374, 77.686354],
+            [12.93146, 77.686447],
+            [12.931549, 77.686547],
+            [12.931625, 77.686241],
+            [12.93383, 77.686372],
+            [12.934057, 77.686369],
+            [12.934219, 77.686366],
+            [12.934547, 77.686377],
+            [12.935155, 77.686385],
+            [12.935285, 77.68639],
+            [12.935545, 77.686397],
+            [12.936015, 77.686411],
+            [12.936061, 77.686412],
+            [12.936473, 77.68613],
+            [12.936663, 77.686],
+            [12.936853, 77.685821],
+            [12.936922, 77.68573],
+            [12.936961, 77.685733],
+            [12.936982, 77.685749],
+            [12.937108, 77.686035],
+            [12.93712, 77.686062],
+            [12.937179, 77.686137],
+            [12.937357, 77.68621],
+            [12.937412, 77.686315],
+            [12.937434, 77.686335],
+            [12.937482, 77.686379],
+            [12.93763, 77.686543],
+            [12.937897, 77.68684],
+            [12.937956, 77.687057],
+            [12.937963, 77.687082],
+            [12.93803, 77.687327],
+            [12.938098, 77.687577],
+            [12.938174, 77.687854],
+            [12.938779, 77.687758],
+            [12.938857, 77.687794],
+            [12.938912, 77.687843],
+            [12.938981, 77.687962],
+            [12.939111, 77.688425],
+            [12.939364, 77.689195],
+            [12.939368, 77.689215],
+            [12.939475, 77.689717],
+            [12.939492, 77.689804],
+            [12.939496, 77.689824],
+            [12.939541, 77.690049],
+            [12.939552, 77.690101],
+            [12.939814, 77.69046],
+            [12.939245, 77.690637],
+            [12.938722, 77.690726],
+            [12.938633, 77.690764],
+            [12.938312, 77.690836],
+            [12.9385, 77.6915]
+        ];
+
+        const customerPathCoords = [
+            [12.935618, 77.688999],
+            [12.935602, 77.688795],
+            [12.935555, 77.688123],
+            [12.935562, 77.688062],
+            [12.935598, 77.688005],
+            [12.935635, 77.687987],
+            [12.935689, 77.687979],
+            [12.93625, 77.688169],
+            [12.936305, 77.688161],
+            [12.936782, 77.68809],
+            [12.937727, 77.687921],
+            [12.937899, 77.687896],
+            [12.938174, 77.687854],
+            [12.938779, 77.687758],
+            [12.938857, 77.687794],
+            [12.938912, 77.687843],
+            [12.938981, 77.687962],
+            [12.939111, 77.688425],
+            [12.939364, 77.689195],
+            [12.939368, 77.689215],
+            [12.939475, 77.689717],
+            [12.939492, 77.689804],
+            [12.939496, 77.689824],
+            [12.939541, 77.690049],
+            [12.939552, 77.690101],
+            [12.939814, 77.69046],
+            [12.939245, 77.690637],
+            [12.938722, 77.690726],
+            [12.938633, 77.690764],
+            [12.938312, 77.690836],
+            [12.9385, 77.6915]
+        ];
+
+        // Calculate distance between two lat/lng coordinates
+        function getDistance(p1, p2) {
+            const dy = p2[0] - p1[0];
+            const dx = p2[1] - p1[1];
+            return Math.sqrt(dx * dx + dy * dy);
+        }
+
+        // Distance-based coordinate interpolation for constant-speed smooth animations
+        function interpolatePath(coordsList, totalSteps = 600) {
+            if (coordsList.length === 0) return [];
+            if (coordsList.length === 1) return Array(totalSteps).fill(coordsList[0]);
+
+            // 1. Calculate segment lengths and cumulative distance
+            const segments = [];
+            let totalDistance = 0;
+            for (let i = 0; i < coordsList.length - 1; i++) {
+                const dist = getDistance(coordsList[i], coordsList[i + 1]);
+                segments.push(dist);
+                totalDistance += dist;
+            }
+
+            if (totalDistance === 0) {
+                return Array(totalSteps).fill(coordsList[0]);
+            }
+
+            // 2. Interpolate points along the path
+            const result = [];
+            for (let step = 0; step < totalSteps; step++) {
+                const targetDist = (step / (totalSteps - 1)) * totalDistance;
+                
+                // Find which segment this distance falls into
+                let accumulated = 0;
+                let segmentIndex = 0;
+                while (segmentIndex < segments.length - 1 && accumulated + segments[segmentIndex] < targetDist) {
+                    accumulated += segments[segmentIndex];
+                    segmentIndex++;
+                }
+
+                const segStart = coordsList[segmentIndex];
+                const segEnd = coordsList[segmentIndex + 1];
+                const segLength = segments[segmentIndex];
+                
+                if (segLength === 0) {
+                    result.push(segStart);
+                } else {
+                    const t = (targetDist - accumulated) / segLength;
+                    const lat = segStart[0] + (segEnd[0] - segStart[0]) * t;
+                    const lng = segStart[1] + (segEnd[1] - segStart[1]) * t;
+                    result.push([lat, lng]);
+                }
+            }
+            return result;
+        }
+
+        let animationFrameId = null;
+        let carAnimationStartTime = null;
+        const totalDuration = 18000; // 18 seconds animation loop
+
+        function startCarAnimation() {
+            isAutoCentering = true;
+            // Lazy load Leaflet Map
+            if (!mapInstance) {
+                mapInstance = L.map('tracking-map', {
+                    zoomControl: false,
+                    attributionControl: false
+                }).setView(meetingPointCoords, 14);
+
+                // CARTO light basemap layer for a clean enterprise corporate layout
+                L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+                    maxZoom: 19
+                }).addTo(mapInstance);
+
+                // Disable auto-centering when user interacts with the map
+                const mapContainer = mapInstance.getContainer();
+                const disableCentering = () => {
+                    isAutoCentering = false;
+                };
+                mapContainer.addEventListener('mousedown', disableCentering);
+                mapContainer.addEventListener('touchstart', disableCentering);
+                mapContainer.addEventListener('wheel', disableCentering);
+            }
+
+            // Create Leaflet DivIcons to use Material Symbols & Tailwind styling
+            const meetingIcon = L.divIcon({
+                html: `<div class="bg-secondary text-white w-8 h-8 rounded-full border-2 border-white flex items-center justify-center shadow-lg"><span class="material-symbols-outlined text-[18px] fill-1" style="font-variation-settings: 'FILL' 1;">verified_user</span></div>`,
+                className: 'custom-leaflet-icon',
+                iconSize: [32, 32],
+                iconAnchor: [16, 16]
+            });
+
+            const driverIcon = L.divIcon({
+                html: `<div class="bg-secondary text-white w-10 h-10 rounded-full border-2 border-white flex items-center justify-center shadow-lg pulse-marker"><span class="material-symbols-outlined text-[20px] fill-1" style="font-variation-settings: 'FILL' 1;">directions_car</span></div>`,
+                className: 'custom-leaflet-icon',
+                iconSize: [40, 40],
+                iconAnchor: [20, 20]
+            });
+
+            const customerIcon = L.divIcon({
+                html: `<div class="bg-primary text-white w-8 h-8 rounded-full border-2 border-white flex items-center justify-center shadow-lg"><span class="material-symbols-outlined text-[18px]">person</span></div>`,
+                className: 'custom-leaflet-icon',
+                iconSize: [32, 32],
+                iconAnchor: [16, 16]
+            });
+
+            // Reset Map Layers
+            if (driverMarker) mapInstance.removeLayer(driverMarker);
+            if (customerMarker) mapInstance.removeLayer(customerMarker);
+            if (meetingPointMarker) mapInstance.removeLayer(meetingPointMarker);
+            if (driverRouteLine) mapInstance.removeLayer(driverRouteLine);
+            if (customerRouteLine) mapInstance.removeLayer(customerRouteLine);
+
+            // Add meeting point marker
+            meetingPointMarker = L.marker(meetingPointCoords, { icon: meetingIcon }).addTo(mapInstance)
+                .bindPopup("<b>West Business Plaza</b><br>Gate 4 Meeting Point", { closeButton: false })
+                .openPopup();
+
+            // Add initial moving markers
+            driverMarker = L.marker(driverStartCoords, { icon: driverIcon }).addTo(mapInstance);
+            customerMarker = L.marker(customerStartCoords, { icon: customerIcon }).addTo(mapInstance);
+
+            // Draw route lines
+            driverRouteLine = L.polyline(driverPathCoords, { color: '#006d37', weight: 5, opacity: 0.75 }).addTo(mapInstance);
+            customerRouteLine = L.polyline(customerPathCoords, { color: '#031636', weight: 3, opacity: 0.7, dashArray: '5, 8' }).addTo(mapInstance);
+
+            // Responsively fit layout to contain all participants
+            const bounds = L.latLngBounds([driverStartCoords, customerStartCoords, meetingPointCoords]);
+            mapInstance.fitBounds(bounds, { padding: [40, 40] });
+
+            // Generate dense coordinate points for smooth constant-speed rendering
+            const driverSteps = interpolatePath(driverPathCoords, 600);
+            const customerSteps = interpolatePath(customerPathCoords, 600);
+
+            const maxSteps = Math.max(driverSteps.length, customerSteps.length);
+            carAnimationStartTime = performance.now();
+
+            const eta = document.getElementById('eta-timer');
+            const streetImg = document.getElementById('streetview-img');
+            const streetLabel = document.getElementById('streetview-label');
+
+            function animate(time) {
+                let elapsed = time - carAnimationStartTime;
+                let progress = Math.min(elapsed / totalDuration, 1);
+                let currentStep = Math.floor(progress * (maxSteps - 1));
+
+                const driverPos = driverSteps[Math.min(currentStep, driverSteps.length - 1)];
+                const customerPos = customerSteps[Math.min(currentStep, customerSteps.length - 1)];
+
+                if (driverPos) driverMarker.setLatLng(driverPos);
+                if (customerPos) customerMarker.setLatLng(customerPos);
+
+                // Smoothly update map view to track active locations (only if auto-centering is active)
+                if (isAutoCentering) {
+                    const activeBounds = L.latLngBounds([
+                        driverPos || driverStartCoords,
+                        customerPos || customerStartCoords,
+                        meetingPointCoords
+                    ]);
+                    mapInstance.fitBounds(activeBounds, { padding: [45, 45], animate: false });
+                }
+
+                // Countdown Timer Progress math (4m -> Arrived)
+                const minutesLeft = Math.max(0, Math.ceil(4 * (1 - progress)));
+                if (eta) {
+                    if (minutesLeft > 0) {
+                        eta.innerText = `${minutesLeft} mins`;
+                        eta.className = "font-headline-md text-primary font-bold";
+                    } else {
+                        eta.innerText = 'Arrived';
+                        eta.className = "font-headline-md text-secondary font-bold";
+                    }
+                }
+
+                // PiP Street View update based on route progression segments
+                if (progress < 0.35) {
+                    streetImg.src = "https://images.unsplash.com/photo-1596463059283-e2c7c777f2c5?auto=format&fit=crop&w=400&q=80";
+                    streetLabel.innerText = "Bellandur ORR, Bengaluru";
+                } else if (progress < 0.75) {
+                    streetImg.src = "https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?auto=format&fit=crop&w=400&q=80";
+                    streetLabel.innerText = "Kadubeesanahalli, Bengaluru";
+                } else {
+                    streetImg.src = "https://images.unsplash.com/photo-1598970434795-0c54fe7c0648?auto=format&fit=crop&w=400&q=80";
+                    streetLabel.innerText = "Ecospace Plaza - Gate 4";
+                }
+
+                if (progress < 1) {
+                    animationFrameId = requestAnimationFrame(animate);
+                } else {
+                    // Lock markers on meeting point
+                    driverMarker.setLatLng(meetingPointCoords);
+                    customerMarker.setLatLng(meetingPointCoords);
+                    showToast("Meeting point reached!", "success");
+
+                    // Loop animation after a 5 second pause
+                    setTimeout(() => {
+                        if (window.location.hash === '#tracking') {
+                            startCarAnimation();
+                        }
+                    }, 5000);
+                }
+            }
+
+            if (animationFrameId) cancelAnimationFrame(animationFrameId);
+            animationFrameId = requestAnimationFrame(animate);
+        }
+
+        function stopCarAnimation() {
+            if (animationFrameId) {
+                cancelAnimationFrame(animationFrameId);
+                animationFrameId = null;
+            }
+        }
+
+        function recenterTrackingMap() {
+            isAutoCentering = true;
+            if (mapInstance && driverMarker && customerMarker) {
+                const bounds = L.latLngBounds([
+                    driverMarker.getLatLng(),
+                    customerMarker.getLatLng(),
+                    meetingPointCoords
+                ]);
+                mapInstance.fitBounds(bounds, { padding: [50, 50], animate: true });
+                showToast("Auto-tracking enabled", "success");
+            }
+        }
+
+        // Find Rides Search Map and Suggestion Logic
+        function initSearchMap() {
+            if (!searchMapInstance) {
+                searchMapInstance = L.map('search-map', {
+                    zoomControl: false,
+                    attributionControl: false
+                }).setView([28.56, 77.22], 11);
+
+                // CARTO light basemap layer
+                L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+                    maxZoom: 19
+                }).addTo(searchMapInstance);
+            }
+
+            // Trigger size invalidation and update route layout
+            setTimeout(() => {
+                searchMapInstance.invalidateSize();
+                updateSearchRoute();
+            }, 100);
+        }
+
+        function updateSearchRoute() {
+            if (!searchMapInstance) return;
+
+            // Show loading spinner
+            const loader = document.getElementById('search-map-loader');
+            if (loader) loader.classList.remove('opacity-0');
+
+            // Reset Markers
+            if (searchPickupMarker) searchMapInstance.removeLayer(searchPickupMarker);
+            if (searchDropoffMarker) searchMapInstance.removeLayer(searchDropoffMarker);
+
+            // Re-create Markers using premium HTML DivIcons
+            const startIcon = L.divIcon({
+                html: `<div class="bg-secondary text-white w-6 h-6 rounded-full border-2 border-white flex items-center justify-center shadow-lg"><span class="w-2.5 h-2.5 rounded-full bg-white"></span></div>`,
+                className: 'custom-leaflet-icon',
+                iconSize: [24, 24],
+                iconAnchor: [12, 12]
+            });
+
+            const endIcon = L.divIcon({
+                html: `<div class="bg-primary text-white w-8 h-8 rounded-full border-2 border-white flex items-center justify-center shadow-lg"><span class="material-symbols-outlined text-[16px] fill-1" style="font-variation-settings: 'FILL' 1;">location_on</span></div>`,
+                className: 'custom-leaflet-icon',
+                iconSize: [32, 32],
+                iconAnchor: [16, 16]
+            });
+
+            searchPickupMarker = L.marker(currentPickupCoords, { icon: startIcon }).addTo(searchMapInstance);
+            searchDropoffMarker = L.marker(currentDropoffCoords, { icon: endIcon }).addTo(searchMapInstance);
+
+            // Fetch driving route from OSRM
+            const url = `https://router.project-osrm.org/route/v1/driving/${currentPickupCoords[1]},${currentPickupCoords[0]};${currentDropoffCoords[1]},${currentDropoffCoords[0]}?overview=full&geometries=geojson`;
+
+            fetch(url)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.code === 'Ok' && data.routes && data.routes[0]) {
+                        const routeGeo = data.routes[0].geometry.coordinates;
+                        const leafletCoords = routeGeo.map(c => [c[1], c[0]]);
+
+                        if (searchRouteLine) searchMapInstance.removeLayer(searchRouteLine);
+
+                        searchRouteLine = L.polyline(leafletCoords, {
+                            color: '#006d37',
+                            weight: 5,
+                            opacity: 0.8
+                        }).addTo(searchMapInstance);
+
+                        const bounds = L.latLngBounds([currentPickupCoords, currentDropoffCoords]);
+                        searchMapInstance.fitBounds(bounds, { padding: [60, 60] });
+                    }
+                    if (loader) loader.classList.add('opacity-0');
+                })
+                .catch(err => {
+                    console.error("OSRM Route fetch error:", err);
+                    // Fallback to dashed straight line
+                    if (searchRouteLine) searchMapInstance.removeLayer(searchRouteLine);
+                    searchRouteLine = L.polyline([currentPickupCoords, currentDropoffCoords], {
+                        color: '#006d37',
+                        weight: 5,
+                        opacity: 0.8,
+                        dashArray: '5, 10'
+                    }).addTo(searchMapInstance);
+
+                    const bounds = L.latLngBounds([currentPickupCoords, currentDropoffCoords]);
+                    searchMapInstance.fitBounds(bounds, { padding: [60, 60] });
+                    if (loader) loader.classList.add('opacity-0');
+                });
+        }
+
+        let debounceTimeout = null;
+
+        function showSearchSuggestions(event, type) {
+            event.stopPropagation();
+            const suggestionsDiv = document.getElementById(`${type}-suggestions`);
+            const otherType = type === 'pickup' ? 'dropoff' : 'pickup';
+            document.getElementById(`${otherType}-suggestions`).classList.add('hidden');
+
+            const val = document.getElementById(`search-${type}`).value.trim();
+            if (val.length >= 3) {
+                handleSearchInput(type);
+            } else {
+                const filtered = predefinedLocations.filter(loc => loc.name.toLowerCase().includes(val.toLowerCase()));
+                renderSuggestions(type, filtered);
+            }
+        }
+
+        function handleSearchInput(type) {
+            const val = document.getElementById(`search-${type}`).value.trim();
+            const suggestionsDiv = document.getElementById(`${type}-suggestions`);
+
+            // If query is short, fall back to predefined local suggestions
+            if (val.length < 3) {
+                const filtered = predefinedLocations.filter(loc => loc.name.toLowerCase().includes(val.toLowerCase()));
+                renderSuggestions(type, filtered);
+                return;
+            }
+
+            // Debounce the Nominatim geocoding search to avoid API rate limits
+            clearTimeout(debounceTimeout);
+            debounceTimeout = setTimeout(() => {
+                suggestionsDiv.innerHTML = `
+                    <div class="px-3 py-2.5 text-body-md text-on-surface-variant flex items-center gap-2">
+                        <span class="material-symbols-outlined animate-spin text-[18px]">sync</span>
+                        <span class="font-semibold text-xs">Searching addresses...</span>
+                    </div>
+                `;
+                suggestionsDiv.classList.remove('hidden');
+
+                const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(val)}&limit=5&countrycodes=in`;
+                
+                fetch(url, {
+                    headers: {
+                        'Accept-Language': 'en',
+                        'User-Agent': 'CommuteFlow-App'
+                    }
+                })
+                .then(res => res.json())
+                .then(data => {
+                    const results = data.map(item => {
+                        const parts = item.display_name.split(',');
+                        // Take name (e.g. Sector 62) and city/district for a shorter display string
+                        const name = parts[0].trim();
+                        const area = parts[1] ? parts[1].trim() : '';
+                        const city = parts[2] ? parts[2].trim() : '';
+                        const displayName = [name, area, city].filter(Boolean).slice(0, 2).join(', ');
+                        
+                        return {
+                            name: displayName,
+                            fullName: item.display_name,
+                            coords: [parseFloat(item.lat), parseFloat(item.lon)],
+                            type: item.type === 'administrative' || item.class === 'boundary' ? 'location_city' : 'place'
+                        };
+                    });
+                    renderNominatimSuggestions(type, results);
+                })
+                .catch(err => {
+                    console.error("Nominatim search error:", err);
+                    const filtered = predefinedLocations.filter(loc => loc.name.toLowerCase().includes(val.toLowerCase()));
+                    renderSuggestions(type, filtered);
+                });
+            }, 350);
+        }
+
+        function renderNominatimSuggestions(type, list) {
+            const div = document.getElementById(`${type}-suggestions`);
+            div.innerHTML = '';
+
+            if (list.length === 0) {
+                div.innerHTML = `
+                    <div class="px-3 py-2.5 text-body-md text-outline font-semibold text-center text-xs">
+                        No matches found
+                    </div>
+                `;
+                div.classList.remove('hidden');
+                return;
+            }
+
+            list.forEach(loc => {
+                const item = document.createElement('div');
+                item.className = "px-3 py-2 hover:bg-surface-container-low cursor-pointer flex items-center gap-2 border-b border-outline-variant/30 last:border-b-0 text-left transition-colors";
+                item.innerHTML = `
+                    <span class="material-symbols-outlined text-[16px] text-on-surface-variant flex-shrink-0">${loc.type || 'location_on'}</span>
+                    <div class="flex flex-col min-w-0">
+                        <span class="text-body-md text-primary font-semibold truncate">${loc.name}</span>
+                        <span class="text-[10px] text-outline truncate">${loc.fullName}</span>
+                    </div>
+                `;
+                item.onclick = (e) => {
+                    e.stopPropagation();
+                    document.getElementById(`search-${type}`).value = loc.name;
+                    if (type === 'pickup') {
+                        currentPickupCoords = loc.coords;
+                    } else {
+                        currentDropoffCoords = loc.coords;
+                    }
+                    div.classList.add('hidden');
+                    updateSearchRoute();
+                };
+                div.appendChild(item);
+            });
+            div.classList.remove('hidden');
+        }
+
+        function renderSuggestions(type, list) {
+            const div = document.getElementById(`${type}-suggestions`);
+            div.innerHTML = '';
+            if (list.length === 0) {
+                div.classList.add('hidden');
+                return;
+            }
+
+            list.forEach(loc => {
+                const item = document.createElement('div');
+                item.className = "px-3 py-2.5 hover:bg-surface-container-low cursor-pointer flex items-center gap-2 border-b border-outline-variant/30 last:border-b-0 text-body-md text-primary font-semibold transition-colors";
+                item.innerHTML = `
+                    <span class="material-symbols-outlined text-[18px] text-on-surface-variant">${loc.type || 'location_on'}</span>
+                    <span>${loc.name}</span>
+                `;
+                item.onclick = (e) => {
+                    e.stopPropagation();
+                    document.getElementById(`search-${type}`).value = loc.name;
+                    if (type === 'pickup') {
+                        currentPickupCoords = loc.coords;
+                    } else {
+                        currentDropoffCoords = loc.coords;
+                    }
+                    div.classList.add('hidden');
+                    updateSearchRoute();
+                };
+                div.appendChild(item);
+            });
+            div.classList.remove('hidden');
+        }
+
+        function reverseSearchLocations() {
+            const pickupInput = document.getElementById('search-pickup');
+            const dropoffInput = document.getElementById('search-dropoff');
+            if (!pickupInput || !dropoffInput) return;
+
+            const tempVal = pickupInput.value;
+            pickupInput.value = dropoffInput.value;
+            dropoffInput.value = tempVal;
+
+            const tempCoords = currentPickupCoords;
+            currentPickupCoords = currentDropoffCoords;
+            currentDropoffCoords = tempCoords;
+
+            updateSearchRoute();
+        }
+
+        // Global click listener to close search suggestion dropdowns
+        window.addEventListener('click', () => {
+            const pickupSuggestions = document.getElementById('pickup-suggestions');
+            const dropoffSuggestions = document.getElementById('dropoff-suggestions');
+            if (pickupSuggestions) pickupSuggestions.classList.add('hidden');
+            if (dropoffSuggestions) dropoffSuggestions.classList.add('hidden');
+        });
+
+        // Collapsible tracking details card state and logic
+        let detailsCardCollapsed = false;
+
+        function toggleDetailsCard() {
+            const content = document.getElementById('details-content');
+            const chevron = document.getElementById('details-chevron');
+            if (!content || !chevron) return;
+
+            detailsCardCollapsed = !detailsCardCollapsed;
+            if (detailsCardCollapsed) {
+                content.style.maxHeight = '0px';
+                content.style.padding = '0px 12px';
+                content.style.opacity = '0';
+                chevron.style.transform = 'rotate(-180deg)';
+            } else {
+                content.style.maxHeight = '400px';
+                content.style.padding = '12px';
+                content.style.opacity = '1';
+                chevron.style.transform = 'rotate(0deg)';
+            }
+        }
+
+        // Category Filter list filter
+        function filterCategory(btn, cat) {
+            // Styling sync
+            document.querySelectorAll('button[onclick*="filterCategory"]').forEach(b => {
+                b.className = "flex-shrink-0 px-md py-sm bg-surface-container-lowest border border-outline-variant rounded-full font-label-md text-on-surface-variant flex items-center gap-xs hover:bg-surface-container-low transition-all duration-200";
+            });
+            btn.className = "flex-shrink-0 px-md py-sm bg-primary text-on-primary rounded-full font-label-md flex items-center gap-xs shadow-sm transition-all duration-200";
+
+            // Hide/Show items
+            document.querySelectorAll('.ride-card').forEach(card => {
+                if (cat === 'all' || card.getAttribute('data-category') === cat) {
+                    card.style.display = 'flex';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+    </script>
+</body>
+</html>
